@@ -7,6 +7,9 @@ import (
 	"github.com/rancher/rancher/tests/framework/clients/rancher"
 	appv1 "k8s.io/api/apps/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
+	"k8s.io/apimachinery/pkg/watch"
+	"k8s.io/client-go/dynamic"
 )
 
 // DeploymentList is a struct that contains a list of deployments.
@@ -51,4 +54,28 @@ func (list *DeploymentList) Names() []string {
 	}
 
 	return deploymentNames
+}
+
+func GetDeploymentResource(client *rancher.Client, clusterID string, namespace string) (dynamic.ResourceInterface, error) {
+
+	dynamicClient, err := client.GetDownStreamClusterClient(clusterID)
+	if err != nil {
+		return nil, err
+	}
+	return dynamicClient.Resource(DeploymentGroupVersionResource).Namespace(namespace), nil
+}
+
+func IsDeploymentReady(event watch.Event) (ready bool, err error) {
+	deploymentsUnstructured := event.Object.(*unstructured.Unstructured)
+	deployment := &appv1.Deployment{}
+
+	err = scheme.Scheme.Convert(deploymentsUnstructured, deployment, deploymentsUnstructured.GroupVersionKind())
+	if err != nil {
+		return false, err
+	}
+
+	if *deployment.Spec.Replicas == deployment.Status.AvailableReplicas {
+		return true, nil
+	}
+	return false, nil
 }

@@ -35,6 +35,10 @@ func CreateDeployment(client *rancher.Client, clusterName, deploymentName, names
 		Labels: labels,
 	}
 
+	if len(template.Labels) == 0 {
+		template.Labels = labels
+	}
+
 	template.Spec.RestartPolicy = corev1.RestartPolicyAlways
 	deployment := &appv1.Deployment{
 		ObjectMeta: metav1.ObjectMeta{
@@ -43,13 +47,13 @@ func CreateDeployment(client *rancher.Client, clusterName, deploymentName, names
 		},
 		Spec: appv1.DeploymentSpec{
 			Selector: &metav1.LabelSelector{
-				MatchLabels: labels,
+				MatchLabels: template.Labels,
 			},
 			Template: template,
 		},
 	}
 
-	deploymentResource := dynamicClient.Resource(DeploymentGroupVersionResource).Namespace(namespace)
+	deploymentResource := dynamicClient.Resource(appv1.SchemeGroupVersion.WithResource("deployments")).Namespace(namespace)
 
 	unstructuredResp, err := deploymentResource.Create(context.TODO(), unstructured.MustToUnstructured(deployment), metav1.CreateOptions{})
 	if err != nil {

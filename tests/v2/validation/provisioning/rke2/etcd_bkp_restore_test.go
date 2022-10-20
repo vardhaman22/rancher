@@ -3,8 +3,10 @@ package rke2
 import (
 	"context"
 	"fmt"
+	"strings"
 	"testing"
 
+	"github.com/rancher/rancher/pkg/api/scheme"
 	kubeProvisioning "github.com/rancher/rancher/tests/framework/clients/provisioning"
 	"github.com/rancher/rancher/tests/framework/clients/rancher"
 	provisioningV1 "github.com/rancher/rancher/tests/framework/clients/rancher/generated/provisioning/v1"
@@ -27,6 +29,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 
+	rkev1 "github.com/rancher/rancher/pkg/apis/rke.cattle.io/v1"
 	appv1 "k8s.io/api/apps/v1"
 	networkingv1 "k8s.io/api/networking/v1"
 )
@@ -77,143 +80,80 @@ func (r *RKE2EtcdSnapshotRestoreTestSuite) SetupSuite() {
 	r.clusterName = r.client.RancherConfig.ClusterName
 }
 
-// func (r *RKE2EtcdSnapshotRestoreTestSuite) TestEtcdSnapshotRestoreFreshCluster(provider Provider, kubeVersion string, cni string, nodesAndRoles []machinepools.NodeRoles, credential *cloudcredentials.CloudCredential) {
-// 	name := fmt.Sprintf("Provider_%s/Kubernetes_Version_%s/Nodes_%v", provider.Name, kubeVersion, nodesAndRoles)
-// 	r.Run(name, func() {
-// 		testSession := session.NewSession(r.T())
-// 		defer testSession.Cleanup()
+func (r *RKE2EtcdSnapshotRestoreTestSuite) createSnapshot(clustername string, generation int) error {
+	kubeProvisioningClient, err := r.client.GetKubeAPIProvisioningClient()
+	require.NoError(r.T(), err)
 
-// 		testSessionClient, err := r.client.WithSession(testSession)
-// 		require.NoError(r.T(), err)
+	cluster, err := kubeProvisioningClient.Clusters(defaultNamespace).Get(context.TODO(), clustername, metav1.GetOptions{})
+	if err != nil {
+		return err
+	}
 
-// 		clusterName := provisioning.AppendRandomString(fmt.Sprintf("%s-%s", r.clusterName, provider.Name))
-// 		generatedPoolName := fmt.Sprintf("nc-%s-pool1-", clusterName)
-// 		machinePoolConfig := provider.MachinePoolFunc(generatedPoolName, namespace)
+	cluster.Spec.RKEConfig.ETCDSnapshotCreate = &rkev1.ETCDSnapshotCreate{
+		Generation: generation,
+	}
 
-// 		machineConfigResp, err := machinepools.CreateMachineConfig(provider.MachineConfig, machinePoolConfig, testSessionClient)
-// 		require.NoError(r.T(), err)
+	cluster, err = kubeProvisioningClient.Clusters(defaultNamespace).Update(context.TODO(), cluster, metav1.UpdateOptions{})
+	if err != nil {
+		return err
+	}
 
-// 		machinePools := machinepools.RKEMachinePoolSetup(nodesAndRoles, machineConfigResp)
+	result, err := kubeProvisioningClient.Clusters(defaultNamespace).Watch(context.TODO(), metav1.ListOptions{
+		FieldSelector:  "metadata.name=" + cluster.ObjectMeta.Name,
+		TimeoutSeconds: &defaults.WatchTimeoutSeconds,
+	})
+	require.NoError(r.T(), err)
 
-// 		cluster := clusters.NewRKE2ClusterConfig(clusterName, namespace, cni, credential.ID, kubeVersion, machinePools)
+	checkFunc := clusters.IsProvisioningClusterReady
 
-// 		clusterResp, err := clusters.CreateRKE2Cluster(testSessionClient, cluster)
-// 		require.NoError(r.T(), err)
+	err = wait.WatchWait(result, checkFunc)
+	assert.NoError(r.T(), err)
 
-// 		kubeProvisioningClient, err := r.client.GetKubeAPIProvisioningClient()
-// 		require.NoError(r.T(), err)
+	return nil
+}
 
-// 		result, err := kubeProvisioningClient.Clusters(namespace).Watch(context.TODO(), metav1.ListOptions{
-// 			FieldSelector:  "metadata.name=" + clusterName,
-// 			TimeoutSeconds: &defaults.WatchTimeoutSeconds,
-// 		})
-// 		require.NoError(r.T(), err)
+func (r *RKE2EtcdSnapshotRestoreTestSuite) restoreSnapshot(kubeProvisioningClient *kubeProvisioning.Client, clustername string, name string, generation int, restoreconfig string) error {
+	kubeProvisioningClient, err := r.client.GetKubeAPIProvisioningClient()
+	require.NoError(r.T(), err)
 
-// 		checkFunc := clusters.IsProvisioningClusterReady
-// 		err = wait.WatchWait(result, checkFunc)
-// 		assert.NoError(r.T(), err)
+	cluster, err := kubeProvisioningClient.Clusters(defaultNamespace).Get(context.TODO(), clustername, metav1.GetOptions{})
+	if err != nil {
+		return err
+	}
+	cluster.Spec.RKEConfig.ETCDSnapshotRestore = &rkev1.ETCDSnapshotRestore{
+		Name:             name,
+		Generation:       generation,
+		RestoreRKEConfig: restoreconfig,
+	}
 
-// 		assert.Equal(r.T(), clusterName, clusterResp.ObjectMeta.Name)
+	cluster, err = kubeProvisioningClient.Clusters(defaultNamespace).Update(context.TODO(), cluster, metav1.UpdateOptions{})
+	if err != nil {
+		return err
+	}
 
-// 		// newClusterID, err := clusters.GetClusterIDByName(r.client, clusterName)
+	return nil
+}
 
-// 		// require.NoError(r.T(), r.createSnapshot(clusterName, 1))
-// 		// snapshotName := r.GetSnapshot(r.client, newClusterID, clusterName, "local", namespace, metav1.ListOptions{})
-// 		// time.Sleep(60 * time.Second)
-// 		// require.NoError(r.T(), r.restoreSnapshot(clusterName, snapshotName, 1, "all"))
+func (r *RKE2EtcdSnapshotRestoreTestSuite) GetSnapshots(client *rancher.Client,
+	localClusterID string, getOpts metav1.ListOptions) (*rkev1.ETCDSnapshotList, error) {
+	dynamicClient, err := client.GetDownStreamClusterClient(localClusterID)
+	if err != nil {
+		return nil, err
+	}
 
-// 	})
-// }
+	etcdResource := dynamicClient.Resource(EtcdSnapshotGroupVersionResource).Namespace(defaultNamespace)
+	unstructuredResp, err := etcdResource.List(context.TODO(), getOpts)
+	if err != nil {
+		return nil, err
+	}
 
-// func (r *RKE2EtcdSnapshotRestoreTestSuite) createSnapshot(clustername string, generation int) error {
-// 	kubeProvisioningClient, err := r.client.GetKubeAPIProvisioningClient()
-// 	require.NoError(r.T(), err)
-
-// 	cluster, err := kubeProvisioningClient.Clusters(namespace).Get(context.TODO(), clustername, metav1.GetOptions{})
-// 	if err != nil {
-// 		return err
-// 	}
-
-// 	cluster.Spec.RKEConfig.ETCDSnapshotCreate = &rkev1.ETCDSnapshotCreate{
-// 		Generation: generation,
-// 	}
-
-// 	cluster, err = kubeProvisioningClient.Clusters(namespace).Update(context.TODO(), cluster, metav1.UpdateOptions{})
-// 	if err != nil {
-// 		return err
-// 	}
-
-// 	result, err := kubeProvisioningClient.Clusters(namespace).Watch(context.TODO(), metav1.ListOptions{
-// 		FieldSelector:  "metadata.name=" + cluster.ObjectMeta.Name,
-// 		TimeoutSeconds: &defaults.WatchTimeoutSeconds,
-// 	})
-// 	require.NoError(r.T(), err)
-
-// 	checkFunc := clusters.IsProvisioningClusterReady
-
-// 	err = wait.WatchWait(result, checkFunc)
-// 	assert.NoError(r.T(), err)
-
-// 	return nil
-// }
-
-// func (r *RKE2EtcdSnapshotRestoreTestSuite) restoreSnapshot(clustername string, name string, generation int, restoreconfig string) error {
-// 	kubeProvisioningClient, err := r.client.GetKubeAPIProvisioningClient()
-// 	require.NoError(r.T(), err)
-
-// 	cluster, err := kubeProvisioningClient.Clusters(namespace).Get(context.TODO(), clustername, metav1.GetOptions{})
-// 	if err != nil {
-// 		return err
-// 	}
-// 	cluster.Spec.RKEConfig.ETCDSnapshotRestore = &rkev1.ETCDSnapshotRestore{
-// 		Name:             name,
-// 		Generation:       generation,
-// 		RestoreRKEConfig: "all",
-// 	}
-
-// 	cluster, err = kubeProvisioningClient.Clusters(namespace).Update(context.TODO(), cluster, metav1.UpdateOptions{})
-// 	if err != nil {
-// 		return err
-// 	}
-
-// 	results, err := kubeProvisioningClient.Clusters(namespace).Watch(context.TODO(), metav1.ListOptions{
-// 		FieldSelector:  "metadata.name=" + cluster.ObjectMeta.Name,
-// 		TimeoutSeconds: &defaults.WatchTimeoutSeconds,
-// 	})
-// 	require.NoError(r.T(), err)
-
-// 	checkFuncs := clusters.IsProvisioningClusterReady
-
-// 	err = wait.WatchWait(results, checkFuncs)
-// 	assert.NoError(r.T(), err)
-
-// 	return nil
-// }
-
-// func (r *RKE2EtcdSnapshotRestoreTestSuite) GetSnapshot(client *rancher.Client, newClusterID string, clusterName string, clusterID string, namespace string, getOpts metav1.ListOptions) string {
-// 	dynamicClient, err := client.GetDownStreamClusterClient(clusterID)
-// 	if err != nil {
-// 		return ""
-// 	}
-// 	etcdResource := dynamicClient.Resource(EtcdSnapshotGroupVersionResource).Namespace("fleet-default")
-// 	unstructuredResp, err := etcdResource.List(context.TODO(), getOpts)
-// 	if err != nil {
-// 		return ""
-// 	}
-
-// 	snapshots := &rkev1.ETCDSnapshotList{}
-// 	err = scheme.Scheme.Convert(unstructuredResp, snapshots, unstructuredResp.GroupVersionKind())
-// 	if err != nil {
-// 		return ""
-// 	}
-
-// 	for _, EtcdSnapshot := range snapshots.Items {
-// 		if EtcdSnapshot.Labels["rke.cattle.io/cluster-name"] == clusterName {
-// 			return EtcdSnapshot.Name
-// 		}
-// 	}
-// 	return ""
-// }
+	snapshots := &rkev1.ETCDSnapshotList{}
+	err = scheme.Scheme.Convert(unstructuredResp, snapshots, unstructuredResp.GroupVersionKind())
+	if err != nil {
+		return nil, err
+	}
+	return snapshots, nil
+}
 
 // func (r *RKE2EtcdSnapshotRestoreTestSuite) TestEtcdSnapshotRestore() {
 // 	for _, providerName := range r.providers {
@@ -255,6 +195,7 @@ func (r *RKE2EtcdSnapshotRestoreTestSuite) EtcdSnapshotRestore(provider *Provide
 	require.NoError(r.T(), err)
 
 	clusterName := provisioning.AppendRandomString(provider.Name)
+	localClusterName := "local"
 
 	logrus.Infof("creating rke2Cluster.............")
 	clusterResp, err := r.createRKE2NodeDriverCluster(subSession, client, provider, clusterName)
@@ -277,6 +218,11 @@ func (r *RKE2EtcdSnapshotRestoreTestSuite) EtcdSnapshotRestore(provider *Provide
 	require.NoError(r.T(), err)
 	logrus.Info("got cluster id.............", clusterID)
 
+	logrus.Info("getting local cluster id.............")
+	localClusterID, err := clusters.GetClusterIDByName(client, localClusterName)
+	require.NoError(r.T(), err)
+	logrus.Info("got local cluster id.............", localClusterID)
+
 	// creating the workload W1
 	logrus.Infof("creating a workload(nginx deployment).............")
 	w1Name := "w1"
@@ -289,7 +235,7 @@ func (r *RKE2EtcdSnapshotRestoreTestSuite) EtcdSnapshotRestore(provider *Provide
 	r.watchAndWaitForNginxDeploymentW1(client, clusterID, w1Name)
 	logrus.Infof("w1(nginx-deployment) is ready.............")
 
-	// creating the ingress W1
+	// creating the ingress1
 	logrus.Infof("creating an ingress.............")
 	ingress1Name := "ingress1"
 	w1ServiceName := "w1-svc"
@@ -297,35 +243,78 @@ func (r *RKE2EtcdSnapshotRestoreTestSuite) EtcdSnapshotRestore(provider *Provide
 	require.NoError(r.T(), err)
 	require.Equal(r.T(), ingress1Name, ingress1.ObjectMeta.Name)
 	logrus.Infof("created an ingress.............")
+
+	logrus.Infof("creating a snapshot of the cluster.............")
+	err = r.createSnapshot(clusterName, 1)
+	require.NoError(r.T(), err)
+
+	snapshotList, err := r.GetSnapshots(client, localClusterID, metav1.ListOptions{})
+	require.NoError(r.T(), err)
+
+	snapshotToBeRestored := ""
+	totalClusterSnapShots := 0
+	for _, snapshot := range snapshotList.Items {
+		if strings.HasPrefix(snapshot.ObjectMeta.Name, clusterName) {
+			if snapshotToBeRestored == "" {
+				snapshotToBeRestored = snapshot.Name
+			}
+			totalClusterSnapShots++
+		}
+	}
+	require.Equal(r.T(), 3, totalClusterSnapShots)
+
+	logrus.Infof("creating a workload(w2, deployment).............")
+	w2Name := "w2"
+	w2, err := r.createTestDeployment(client, clusterID, w2Name)
+	require.NoError(r.T(), err)
+	require.Equal(r.T(), w2Name, w2.ObjectMeta.Name)
+	logrus.Infof("created a workload(w2, deployment).............")
+
+	logrus.Infof("creating watch over w2.............")
+	r.watchAndWaitForNginxDeploymentW1(client, clusterID, w2Name)
+	logrus.Infof("w2 is ready.............")
+
+	logrus.Infof("restoring snapshot.............")
+	require.NoError(r.T(), r.restoreSnapshot(kubeProvisioningClient, clusterName, snapshotToBeRestored, 1, "all"))
+	logrus.Infof("successfully submitted restoration request.............")
+
+	logrus.Infof("creating watch over cluster after restore.............")
+	r.watchAndWaitForCluster(kubeProvisioningClient, clusterName)
+	logrus.Infof("cluster is active again.............")
+
+	logrus.Infof("fetching deployment list to validate restore.............")
+	deploymentsList, err := deployments.ListDeployments(client, clusterID, defaultNamespace, metav1.ListOptions{})
+	require.NoError(r.T(), err)
+	require.Equal(r.T(), 1, len(deploymentsList.Items))
+	require.Equal(r.T(), w1Name, deploymentsList.Items[0].ObjectMeta.Name)
+	logrus.Infof(" deployment list validated successfully.............")
+
+	logrus.Infof("fetching ingresses list to validate restore.............")
+	ingressesList, err := ingresses.ListIngresses(client, clusterID, defaultNamespace, metav1.ListOptions{})
+	require.NoError(r.T(), err)
+	require.Equal(r.T(), 1, len(ingressesList.Items))
+	require.Equal(r.T(), ingress1Name, ingressesList.Items[0].ObjectMeta.Name)
+	logrus.Infof("ingress list validated successfully.............")
 }
 
 func (r *RKE2EtcdSnapshotRestoreTestSuite) createRKE2NodeDriverCluster(session *session.Session,
 	client *rancher.Client, provider *Provider, clusterName string) (*provisioningV1.Cluster, error) {
 
-	// nodeRoles := []machinepools.NodeRoles{
-	// 	{
-	// 		ControlPlane: true,
-	// 		Etcd:         true,
-	// 		Worker:       true,
-	// 		Quantity:     1,
-	// 	},
-	// 	{
-	// 		ControlPlane: true,
-	// 		Etcd:         true,
-	// 		Worker:       true,
-	// 		Quantity:     1,
-	// 	},
-	// 	{
-	// 		ControlPlane: false,
-	// 		Etcd:         true,
-	// 		Worker:       true,
-	// 		Quantity:     1,
-	// 	},
-	// }
-
 	nodeRoles := []machinepools.NodeRoles{
 		{
 			ControlPlane: true,
+			Etcd:         true,
+			Worker:       true,
+			Quantity:     1,
+		},
+		{
+			ControlPlane: true,
+			Etcd:         true,
+			Worker:       true,
+			Quantity:     1,
+		},
+		{
+			ControlPlane: false,
 			Etcd:         true,
 			Worker:       true,
 			Quantity:     1,
@@ -345,7 +334,7 @@ func (r *RKE2EtcdSnapshotRestoreTestSuite) createRKE2NodeDriverCluster(session *
 
 	r.cnis = []string{"calico"}
 
-	initialKubeVersion := "v1.22.8+rke2r1"
+	initialKubeVersion := "v1.24.2+rke2r1"
 
 	cluster := clusters.NewK3SRKE2ClusterConfig(clusterName, defaultNamespace, r.cnis[0], cloudCredential.ID, initialKubeVersion, machinePools)
 
@@ -438,23 +427,7 @@ func (r *RKE2EtcdSnapshotRestoreTestSuite) createIngress(
 	return ingresses.CreateIngress(client, clusterID, ingressName, defaultNamespace, ingressSpec)
 }
 
-// func (r *RKE2EtcdSnapshotRestoreTestSuite) watchAndWaitForIngress(client *rancher.Client, clusterID string, ingressName string) {
-// 	ingressResource, err := ingresses.GetIngressResource(client, clusterID, defaultNamespace)
-// 	require.NoError(r.T(), err)
-
-// 	ingressResult, err := ingressResource.Watch(context.TODO(), metav1.ListOptions{
-// 		FieldSelector:  "metadata.name=" + ingressName,
-// 		TimeoutSeconds: &defaults.WatchTimeoutSeconds,
-// 	})
-// 	require.NoError(r.T(), err)
-
-// 	logrus.Infof("waiting for deployment to be created.............")
-// 	ingressCheckFunc := ingresses.IsIngressReady
-// 	err = wait.WatchWait(ingressResult, ingressCheckFunc)
-// 	assert.NoError(r.T(), err)
-// }
-
-func (r *RKE2EtcdSnapshotRestoreTestSuite) TestEtcdSnapshotRestoreV2() {
+func (r *RKE2EtcdSnapshotRestoreTestSuite) TestEtcdSnapshotRestore() {
 	for _, providerName := range r.providers {
 		provider := CreateProvider(providerName)
 		r.EtcdSnapshotRestore(&provider)

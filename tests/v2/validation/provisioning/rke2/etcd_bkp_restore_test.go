@@ -98,17 +98,6 @@ func (r *RKE2EtcdSnapshotRestoreTestSuite) createSnapshot(clustername string, ge
 		return err
 	}
 
-	result, err := kubeProvisioningClient.Clusters(defaultNamespace).Watch(context.TODO(), metav1.ListOptions{
-		FieldSelector:  "metadata.name=" + cluster.ObjectMeta.Name,
-		TimeoutSeconds: &defaults.WatchTimeoutSeconds,
-	})
-	require.NoError(r.T(), err)
-
-	checkFunc := clusters.IsProvisioningClusterReady
-
-	err = wait.WatchWait(result, checkFunc)
-	assert.NoError(r.T(), err)
-
 	return nil
 }
 
@@ -247,6 +236,11 @@ func (r *RKE2EtcdSnapshotRestoreTestSuite) EtcdSnapshotRestore(provider *Provide
 	logrus.Infof("creating a snapshot of the cluster.............")
 	err = r.createSnapshot(clusterName, 1)
 	require.NoError(r.T(), err)
+	logrus.Infof("created a snapshot of the cluster.............")
+
+	logrus.Infof("creating watch over cluster after creating a snapshot.............")
+	r.watchAndWaitForCluster(kubeProvisioningClient, clusterName)
+	logrus.Infof("cluster is active again.............")
 
 	snapshotList, err := r.GetSnapshots(client, localClusterID, metav1.ListOptions{})
 	require.NoError(r.T(), err)
@@ -254,14 +248,14 @@ func (r *RKE2EtcdSnapshotRestoreTestSuite) EtcdSnapshotRestore(provider *Provide
 	snapshotToBeRestored := ""
 	totalClusterSnapShots := 0
 	for _, snapshot := range snapshotList.Items {
-		if strings.HasPrefix(snapshot.ObjectMeta.Name, clusterName) {
+		if strings.Contains(snapshot.ObjectMeta.Name, clusterName) {
 			if snapshotToBeRestored == "" {
 				snapshotToBeRestored = snapshot.Name
 			}
 			totalClusterSnapShots++
 		}
 	}
-	require.Equal(r.T(), 3, totalClusterSnapShots)
+	logrus.Info("total ", totalClusterSnapShots, " created")
 
 	logrus.Infof("creating a workload(w2, deployment).............")
 	w2Name := "w2"
@@ -351,7 +345,7 @@ func (r *RKE2EtcdSnapshotRestoreTestSuite) watchAndWaitForCluster(kubeProvisioni
 	logrus.Infof("waiting for cluster to be up.............")
 	checkFunc := clusters.IsProvisioningClusterReady
 	err = wait.WatchWait(result, checkFunc)
-	assert.NoError(r.T(), err)
+	require.NoError(r.T(), err)
 }
 
 func (r *RKE2EtcdSnapshotRestoreTestSuite) createTestDeployment(

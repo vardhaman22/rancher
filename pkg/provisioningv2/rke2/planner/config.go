@@ -186,13 +186,20 @@ func isVSphereProvider(controlPlane *rkev1.RKEControlPlane, entry *planEntry) (b
 func addVSphereCharts(controlPlane *rkev1.RKEControlPlane, entry *planEntry) (map[string]interface{}, error) {
 	if isVSphere, err := isVSphereProvider(controlPlane, entry); err != nil {
 		return nil, err
-	} else if isVSphere && controlPlane.Spec.ChartValues.Data["rancher-vsphere-csi"] == nil {
+	} else if isVSphere && (controlPlane.Spec.ChartValues.Data["rancher-vsphere-csi"] == nil ||
+		controlPlane.Spec.ChartValues.Data["rancher-vsphere-cpi"] == nil) {
 		// ensure we have this chart config so that the global.cattle.clusterId is set
 		newData := controlPlane.Spec.ChartValues.DeepCopy()
 		if newData.Data == nil {
 			newData.Data = map[string]interface{}{}
 		}
-		newData.Data["rancher-vsphere-csi"] = map[string]interface{}{}
+		if controlPlane.Spec.ChartValues.Data["rancher-vsphere-csi"] == nil {
+			newData.Data["rancher-vsphere-csi"] = map[string]interface{}{}
+		}
+		if controlPlane.Spec.ChartValues.Data["rancher-vsphere-cpi"] == nil {
+			newData.Data["rancher-vsphere-cpi"] = map[string]interface{}{}
+		}
+
 		return newData.Data, nil
 	}
 

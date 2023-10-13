@@ -7,6 +7,7 @@ import (
 	management "github.com/rancher/rancher/tests/framework/clients/rancher/generated/management/v3"
 	"github.com/rancher/rancher/tests/framework/extensions/clusters"
 	"github.com/rancher/rancher/tests/framework/extensions/clusters/kubernetesversions"
+	"github.com/rancher/rancher/tests/framework/extensions/networkchecks"
 	"github.com/rancher/rancher/tests/framework/extensions/provisioninginput"
 	"github.com/rancher/rancher/tests/framework/extensions/users"
 	password "github.com/rancher/rancher/tests/framework/extensions/users/passwordgenerator"
@@ -24,6 +25,7 @@ type CustomClusterProvisioningTestSuite struct {
 	session            *session.Session
 	standardUserClient *rancher.Client
 	provisioningConfig *provisioninginput.Config
+	networkChecks      *networkchecks.NetworkChecks
 }
 
 func (c *CustomClusterProvisioningTestSuite) TearDownSuite() {
@@ -41,6 +43,9 @@ func (c *CustomClusterProvisioningTestSuite) SetupSuite() {
 	require.NoError(c.T(), err)
 
 	c.client = client
+
+	c.networkChecks = &networkchecks.NetworkChecks{}
+	c.networkChecks.InitNetChecks(client)
 
 	c.provisioningConfig.K3SKubernetesVersions, err = kubernetesversions.Default(c.client, clusters.K3SClusterType.String(), c.provisioningConfig.K3SKubernetesVersions)
 	require.NoError(c.T(), err)
@@ -85,7 +90,7 @@ func (c *CustomClusterProvisioningTestSuite) TestProvisioningK3SCustomCluster() 
 	}
 	for _, tt := range tests {
 		c.provisioningConfig.MachinePools = tt.machinePools
-		permutations.RunTestPermutations(&c.Suite, tt.name, tt.client, c.provisioningConfig, permutations.K3SCustomCluster, nil, nil)
+		permutations.RunTestPermutations(&c.Suite, tt.name, tt.client, c.provisioningConfig, permutations.K3SCustomCluster, nil, nil, c.networkChecks)
 	}
 }
 
@@ -110,7 +115,7 @@ func (c *CustomClusterProvisioningTestSuite) TestProvisioningK3SCustomClusterDyn
 		{provisioninginput.StandardClientName.String(), c.standardUserClient},
 	}
 	for _, tt := range tests {
-		permutations.RunTestPermutations(&c.Suite, tt.name, tt.client, c.provisioningConfig, permutations.K3SCustomCluster, nil, nil)
+		permutations.RunTestPermutations(&c.Suite, tt.name, tt.client, c.provisioningConfig, permutations.K3SCustomCluster, nil, nil, c.networkChecks)
 	}
 }
 

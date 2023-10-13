@@ -59,7 +59,7 @@ func (k *KdmChecksTestSuite) TestK3SK8sVersions() {
 
 func (k *KdmChecksTestSuite) TestProvisioningSingleNodeK3SClusters() {
 	require.GreaterOrEqual(k.T(), len(k.provisioningConfig.Providers), 1)
-	permutations.RunTestPermutations(&k.Suite, "oobRelease-", k.client, k.provisioningConfig, permutations.K3SProvisionCluster, nil, nil)
+	permutations.RunTestPermutations(&k.Suite, "oobRelease-", k.client, k.provisioningConfig, permutations.K3SProvisionCluster, nil, nil, nil)
 }
 
 func TestPostKdmOutOfBandReleaseChecks(t *testing.T) {

@@ -7,6 +7,7 @@ import (
 	management "github.com/rancher/rancher/tests/framework/clients/rancher/generated/management/v3"
 	"github.com/rancher/rancher/tests/framework/extensions/clusters"
 	"github.com/rancher/rancher/tests/framework/extensions/clusters/kubernetesversions"
+	"github.com/rancher/rancher/tests/framework/extensions/networkchecks"
 	"github.com/rancher/rancher/tests/framework/extensions/provisioninginput"
 	"github.com/rancher/rancher/tests/framework/extensions/users"
 	password "github.com/rancher/rancher/tests/framework/extensions/users/passwordgenerator"
@@ -25,6 +26,7 @@ type CustomClusterProvisioningTestSuite struct {
 	standardUserClient *rancher.Client
 	provisioningConfig *provisioninginput.Config
 	isWindows          bool
+	networkChecks      *networkchecks.NetworkChecks
 }
 
 func (c *CustomClusterProvisioningTestSuite) TearDownSuite() {
@@ -50,6 +52,9 @@ func (c *CustomClusterProvisioningTestSuite) SetupSuite() {
 	require.NoError(c.T(), err)
 
 	c.client = client
+
+	c.networkChecks = &networkchecks.NetworkChecks{}
+	c.networkChecks.InitNetChecks(client)
 
 	c.provisioningConfig.RKE2KubernetesVersions, err = kubernetesversions.Default(c.client, clusters.RKE2ClusterType.String(), c.provisioningConfig.RKE2KubernetesVersions)
 	require.NoError(c.T(), err)
@@ -101,7 +106,7 @@ func (c *CustomClusterProvisioningTestSuite) TestProvisioningRKE2CustomCluster()
 		defer testSession.Cleanup()
 		if (c.isWindows == tt.isWindows) || (c.isWindows && !tt.isWindows) {
 			c.provisioningConfig.MachinePools = tt.machinePools
-			permutations.RunTestPermutations(&c.Suite, tt.name, tt.client, c.provisioningConfig, permutations.RKE2CustomCluster, nil, nil)
+			permutations.RunTestPermutations(&c.Suite, tt.name, tt.client, c.provisioningConfig, permutations.RKE2CustomCluster, nil, nil, c.networkChecks)
 		} else {
 			c.T().Skip("Skipping Windows tests")
 		}
@@ -126,7 +131,7 @@ func (c *CustomClusterProvisioningTestSuite) TestProvisioningRKE2CustomClusterDy
 		_, err := tt.client.WithSession(testSession)
 		require.NoError(c.T(), err)
 
-		permutations.RunTestPermutations(&c.Suite, tt.name, tt.client, c.provisioningConfig, permutations.RKE2CustomCluster, nil, nil)
+		permutations.RunTestPermutations(&c.Suite, tt.name, tt.client, c.provisioningConfig, permutations.RKE2CustomCluster, nil, nil, c.networkChecks)
 	}
 }
 

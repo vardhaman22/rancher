@@ -106,7 +106,7 @@ func (r *RKE2ACETestSuite) TestProvisioningRKE2ClusterACE() {
 		client, err := tt.client.WithSession(subSession)
 		require.NoError(r.T(), err)
 		r.provisioningConfig.MachinePools = tt.machinePools
-		permutations.RunTestPermutations(&r.Suite, tt.name, client, r.provisioningConfig, permutations.RKE2ProvisionCluster, nil, nil)
+		permutations.RunTestPermutations(&r.Suite, tt.name, client, r.provisioningConfig, permutations.RKE2ProvisionCluster, nil, nil, nil)
 	}
 }
 

@@ -1,16 +1,19 @@
 package permutations
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/rancher/rancher/tests/framework/clients/corral"
 	"github.com/rancher/rancher/tests/framework/clients/rancher"
 	"github.com/rancher/rancher/tests/framework/extensions/clusters"
 	"github.com/rancher/rancher/tests/framework/extensions/machinepools"
+	"github.com/rancher/rancher/tests/framework/extensions/networkchecks"
 	"github.com/rancher/rancher/tests/framework/extensions/provisioning"
 	"github.com/rancher/rancher/tests/framework/extensions/provisioninginput"
 	"github.com/rancher/rancher/tests/framework/extensions/rke1/componentchecks"
 	"github.com/rancher/rancher/tests/framework/pkg/session"
+	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
 )
@@ -29,7 +32,7 @@ const (
 )
 
 // RunTestPermutations runs through all relevant perumutations in a given config file, including node providers, k8s versions, and CNIs
-func RunTestPermutations(s *suite.Suite, testNamePrefix string, client *rancher.Client, provisioningConfig *provisioninginput.Config, clusterType string, hostnameTruncation []machinepools.HostnameTruncation, corralPackages *corral.Packages) {
+func RunTestPermutations(s *suite.Suite, testNamePrefix string, client *rancher.Client, provisioningConfig *provisioninginput.Config, clusterType string, hostnameTruncation []machinepools.HostnameTruncation, corralPackages *corral.Packages, netchecks *networkchecks.NetworkChecks) {
 	var name string
 	var providers []string
 	var testClusterConfig *clusters.ClusterConfig
@@ -47,6 +50,8 @@ func RunTestPermutations(s *suite.Suite, testNamePrefix string, client *rancher.
 	} else {
 		providers = provisioningConfig.Providers
 	}
+
+	netCheckErrors := []error{}
 	for _, nodeProviderName := range providers {
 		nodeProvider, rke1Provider, customProvider, kubeVersions := GetClusterProvider(clusterType, nodeProviderName, provisioningConfig)
 		for _, kubeVersion := range kubeVersions {
@@ -54,6 +59,10 @@ func RunTestPermutations(s *suite.Suite, testNamePrefix string, client *rancher.
 				testClusterConfig = clusters.ConvertConfigToClusterConfig(provisioningConfig)
 				testClusterConfig.CNI = cni
 				name = testNamePrefix + " Node Provider: " + nodeProviderName + " Kubernetes version: " + kubeVersion + " cni: " + cni
+
+				clusterName := ""
+				clusterID := ""
+
 				s.Run(name, func() {
 					switch clusterType {
 					case RKE2ProvisionCluster, K3SProvisionCluster:
@@ -63,6 +72,7 @@ func RunTestPermutations(s *suite.Suite, testNamePrefix string, client *rancher.
 						require.NoError(s.T(), err)
 						provisioning.VerifyCluster(s.T(), client, testClusterConfig, clusterObject)
 
+						clusterName, clusterID = clusterObject.Name, clusterObject.ID
 					case RKE1ProvisionCluster:
 						testClusterConfig.KubernetesVersion = kubeVersion
 						nodeTemplate, err := rke1Provider.NodeTemplateFunc(client)
@@ -73,6 +83,8 @@ func RunTestPermutations(s *suite.Suite, testNamePrefix string, client *rancher.
 
 						provisioning.VerifyRKE1Cluster(s.T(), client, testClusterConfig, clusterObject)
 
+						clusterName, clusterID = clusterObject.Name, clusterObject.ID
+
 					case RKE2CustomCluster, K3SCustomCluster:
 						testClusterConfig.KubernetesVersion = kubeVersion
 
@@ -80,6 +92,7 @@ func RunTestPermutations(s *suite.Suite, testNamePrefix string, client *rancher.
 						require.NoError(s.T(), err)
 
 						provisioning.VerifyCluster(s.T(), client, testClusterConfig, clusterObject)
+						clusterName, clusterID = clusterObject.Name, clusterObject.ID
 
 					case RKE1CustomCluster:
 						testClusterConfig.KubernetesVersion = kubeVersion
@@ -91,6 +104,7 @@ func RunTestPermutations(s *suite.Suite, testNamePrefix string, client *rancher.
 						require.NoError(s.T(), err)
 						require.NotEmpty(s.T(), etcdVersion)
 
+						clusterName, clusterID = clusterObject.Name, clusterObject.ID
 					// airgap currently uses corral to create nodes and register with rancher
 					case RKE2AirgapCluster, K3SAirgapCluster:
 						testClusterConfig.KubernetesVersion = kubeVersion
@@ -109,8 +123,23 @@ func RunTestPermutations(s *suite.Suite, testNamePrefix string, client *rancher.
 					default:
 						s.T().Fatalf("Invalid cluster type: %s", clusterType)
 					}
+
+					if netchecks != nil && clusterName != "" && clusterID != "" {
+						err := netchecks.RunNetworkChecks(clusterName, clusterID)
+						if err != nil {
+							netCheckErrors = append(netCheckErrors, fmt.Errorf("unable to add network check job for : testName: %s, clusterName:%s netCheckErr:%v", name, clusterName, err))
+						}
+					}
 				})
 			}
+		}
+	}
+
+	if len(netCheckErrors) > 0 {
+		for _, err := range netCheckErrors {
+			logrus.Info("*********************************************************")
+			logrus.Infof("%v", err)
+			logrus.Infof("*********************************************************")
 		}
 	}
 }

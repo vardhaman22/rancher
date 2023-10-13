@@ -89,7 +89,7 @@ func (a *AirGapRKE2CustomClusterTestSuite) TestProvisioningRKE2CustomCluster() {
 		{provisioninginput.AdminClientName.String() + "-" + permutations.RKE2AirgapCluster + "-", a.client},
 	}
 	for _, tt := range tests {
-		permutations.RunTestPermutations(&a.Suite, tt.name, tt.client, a.clustersConfig, permutations.RKE2AirgapCluster, nil, a.corralPackage)
+		permutations.RunTestPermutations(&a.Suite, tt.name, tt.client, a.clustersConfig, permutations.RKE2AirgapCluster, nil, a.corralPackage, nil)
 	}
 
 }

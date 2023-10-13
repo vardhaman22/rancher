@@ -67,7 +67,7 @@ func (k *KdmChecksTestSuite) TestProvisioningSingleNodeRKE1Clusters() {
 
 	client, err := k.client.WithSession(subSession)
 	require.NoError(k.T(), err)
-	permutations.RunTestPermutations(&k.Suite, "oobRelease-", client, k.provisioningConfig, permutations.RKE1ProvisionCluster, nil, nil)
+	permutations.RunTestPermutations(&k.Suite, "oobRelease-", client, k.provisioningConfig, permutations.RKE1ProvisionCluster, nil, nil, nil)
 
 }
 

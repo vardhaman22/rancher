@@ -118,6 +118,43 @@ node {
                   echo 'Test run had failures. Collecting results...'
                 }
               }
+
+              stage('Run Validation Tests in Parallel') {
+                try {
+                    jobs = [:]
+                    cluster_arr = "${RANCHER_CLUSTER_NAMES}".split(",")
+                    cluster_count = cluster_arr.size()
+                    if (!env.RANCHER_UPGRADE_CHECK || env.RANCHER_UPGRADE_CHECK == "") {
+                        RANCHER_UPGRADE_CHECK = "preupgrade"
+                    }
+                    if (!env.RANCHER_VALIDATE_RESOURCES_PREFIX || env.RANCHER_VALIDATE_RESOURCES_PREFIX == "") {
+                        RANCHER_VALIDATE_RESOURCES_PREFIX = "mystep1"
+                    }
+                    if (!env.RANCHER_CREATE_RESOURCES_PREFIX || env.RANCHER_CREATE_RESOURCES_PREFIX == "") {
+                        RANCHER_CREATE_RESOURCES_PREFIX = "mystep1"
+                    }
+                    for (int i = 0; i < cluster_count; i++) {
+                      def params = [
+                        string(name: 'CATTLE_TEST_URL', value: "${CATTLE_TEST_URL}"),
+                        string(name: 'ADMIN_TOKEN', value: "${ADMIN_TOKEN}"),
+                        string(name: 'USER_TOKEN', value: "${USER_TOKEN}"),
+                        string(name: 'RANCHER_CLUSTER_NAME', value: "${cluster_arr[i]}"),
+                        string(name: 'PYTEST_OPTIONS', value: "${PYTEST_OPTIONS}"),
+                        string(name: 'RANCHER_UPGRADE_CHECK', value: "${RANCHER_UPGRADE_CHECK}"),
+                        string(name: 'RANCHER_VALIDATE_RESOURCES_PREFIX', value: "${RANCHER_VALIDATE_RESOURCES_PREFIX}"),
+                        string(name: 'RANCHER_CREATE_RESOURCES_PREFIX', value: "${RANCHER_CREATE_RESOURCES_PREFIX}"),
+                      ]
+                      echo "Params are: ${params}"
+                      jobs["test-${i}"] = { build job: 'rancher-v3_needs_cluster', parameters: params }
+                    }
+                    parallel jobs
+                } catch(err) {
+                    echo "Error: " + err
+                    currentBuild.result = 'UNSTABLE'
+                }
+              }
+
+
               stage('Test Report') {
                 sh "docker cp ${testContainer}:${rootPath}${testResultsOut} ."
                 step([$class: 'JUnitResultArchiver', testResults: "**/${testResultsOut}"])

@@ -62,7 +62,7 @@ func (k *KdmChecksTestSuite) TestProvisioningSingleNodeRKE2Clusters() {
 
 	client, err := k.client.WithSession(subSession)
 	require.NoError(k.T(), err)
-	permutations.RunTestPermutations(&k.Suite, "oobRelease-", client, k.provisioningConfig, permutations.RKE2ProvisionCluster, nil, nil)
+	permutations.RunTestPermutations(&k.Suite, "oobRelease-", client, k.provisioningConfig, permutations.RKE2ProvisionCluster, nil, nil, nil)
 }
 
 func TestPostKdmOutOfBandReleaseChecks(t *testing.T) {

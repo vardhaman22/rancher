@@ -7,6 +7,7 @@ import (
 	management "github.com/rancher/rancher/tests/framework/clients/rancher/generated/management/v3"
 	"github.com/rancher/rancher/tests/framework/extensions/clusters"
 	"github.com/rancher/rancher/tests/framework/extensions/clusters/kubernetesversions"
+	"github.com/rancher/rancher/tests/framework/extensions/networkchecks"
 	"github.com/rancher/rancher/tests/framework/extensions/provisioninginput"
 	"github.com/rancher/rancher/tests/framework/extensions/users"
 	password "github.com/rancher/rancher/tests/framework/extensions/users/passwordgenerator"
@@ -24,6 +25,7 @@ type RKE1NodeDriverProvisioningTestSuite struct {
 	standardUserClient *rancher.Client
 	session            *session.Session
 	provisioningConfig *provisioninginput.Config
+	networkChecks      *networkchecks.NetworkChecks
 }
 
 func (r *RKE1NodeDriverProvisioningTestSuite) TearDownSuite() {
@@ -41,6 +43,9 @@ func (r *RKE1NodeDriverProvisioningTestSuite) SetupSuite() {
 	require.NoError(r.T(), err)
 
 	r.client = client
+
+	r.networkChecks = &networkchecks.NetworkChecks{}
+	r.networkChecks.InitNetChecks(client)
 
 	r.provisioningConfig.RKE1KubernetesVersions, err = kubernetesversions.Default(
 		r.client, clusters.RKE1ClusterType.String(), r.provisioningConfig.RKE1KubernetesVersions)
@@ -85,7 +90,7 @@ func (r *RKE1NodeDriverProvisioningTestSuite) TestProvisioningRKE1Cluster() {
 	}
 	for _, tt := range tests {
 		r.provisioningConfig.NodePools = tt.nodePools
-		permutations.RunTestPermutations(&r.Suite, tt.name, tt.client, r.provisioningConfig, permutations.RKE1ProvisionCluster, nil, nil)
+		permutations.RunTestPermutations(&r.Suite, tt.name, tt.client, r.provisioningConfig, permutations.RKE1ProvisionCluster, nil, nil, r.networkChecks)
 	}
 }
 
@@ -103,8 +108,15 @@ func (r *RKE1NodeDriverProvisioningTestSuite) TestProvisioningRKE1ClusterDynamic
 		{provisioninginput.StandardClientName.String(), r.standardUserClient},
 	}
 	for _, tt := range tests {
-		permutations.RunTestPermutations(&r.Suite, tt.name, tt.client, r.provisioningConfig, permutations.RKE1ProvisionCluster, nil, nil)
+		permutations.RunTestPermutations(&r.Suite, tt.name, tt.client, r.provisioningConfig, permutations.RKE1ProvisionCluster, nil, nil, r.networkChecks)
 	}
+
+	r.networkChecks.SetNetworkChecksEnv()
+}
+
+func (r *RKE1NodeDriverProvisioningTestSuite) TestNetworkChecks() {
+	err := r.networkChecks.RunNetworkChecks("auto-aws-pumth", "c-f2vgs")
+	require.NoError(r.T(), err)
 }
 
 // In order for 'go test' to run this suite, we need to create

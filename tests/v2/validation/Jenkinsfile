@@ -114,10 +114,12 @@ node {
               }
               stage('Run Validation Tests') {
                 try {
+                  echo "cattle env flie: ${CATTLE_ENV_FILE}"
+
                   sh "docker run --name ${testContainer} -t --env-file ${envFile} " +
                   "${imageName} sh -c \"/root/go/bin/gotestsum --format standard-verbose --packages=${testsDir} --junitfile ${testResultsOut} -- ${GOTEST_TESTCASE} -timeout=${timeout} -v\""
 
-                  sh "docker cp ${testContainer}:${rootPath}${netcheckFileName} ."
+                  // sh "docker cp ${testContainer}:${rootPath}${netcheckFileName} ."
                   load netcheckFileName
                 } catch(err) {
                   echo 'Test run had failures. Collecting results...'

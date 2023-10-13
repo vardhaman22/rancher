@@ -165,7 +165,11 @@ func (nc *NetworkChecks) setEnv() {
 	content := fmt.Sprintf(fileContent,
 		nc.clusterNames, nc.config.RancherURL, nc.config.AdminToken, nc.config.UserToken)
 
-	file, errs := os.Create(os.Getenv("CATTLE_ENV_FILE"))
+	filePath := os.Getenv("CATTLE_ENV_FILE")
+
+	logrus.Infof("filepath: %v", filePath)
+
+	file, errs := os.Create(filePath)
 	if errs != nil {
 		fmt.Println("Failed to create file:", errs)
 		return

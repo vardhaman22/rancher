@@ -115,8 +115,7 @@ func (r *RKE1NodeDriverProvisioningTestSuite) TestProvisioningRKE1ClusterDynamic
 }
 
 func (r *RKE1NodeDriverProvisioningTestSuite) TestNetworkChecks() {
-	err := r.networkChecks.RunNetworkChecks("auto-aws-pumth", "c-f2vgs")
-	require.NoError(r.T(), err)
+	r.networkChecks.SetNetworkChecksEnv()
 }
 
 // In order for 'go test' to run this suite, we need to create

@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"os"
 	"strings"
-	"time"
 
 	"github.com/rancher/rancher/tests/framework/clients/rancher"
 	management "github.com/rancher/rancher/tests/framework/clients/rancher/generated/management/v3"
@@ -27,6 +26,14 @@ const testDirParam = "TESTS_DIR"
 const rootPathParam = "ROOT_PATH"
 
 const networkChecksConfigKey = "networkChecks"
+
+var fileContent = `
+RANCHER_CLUSTER_NAMES=%s
+CATTLE_TEST_URL=%s
+ADMIN_TOKEN=%s
+USER_TOKEN=%s
+PYTEST_OPTIONS="-k \"test_wl or test_connectivity or test_ingress or test_service_discovery or test_websocket\""
+`
 
 type NetworkChecksConfig struct {
 	UserToken  string `json:"userToken" yaml:"userToken"`
@@ -155,46 +162,68 @@ func (nc *NetworkChecks) granClusterOwnerAccessToUser(clusterID string) error {
 }
 
 func (nc *NetworkChecks) setEnv() {
+	content := fmt.Sprintf(fileContent,
+		nc.clusterNames, nc.config.RancherURL, nc.config.AdminToken, nc.config.UserToken)
 
-	jobName := os.Getenv(jobNameParam)
-	if jobName == "" {
-		jobName = "provisioning-network-checks"
-		os.Setenv(jobNameParam, jobName)
+	file, errs := os.Create("myfile.txt")
+	if errs != nil {
+		fmt.Println("Failed to create file:", errs)
+		return
 	}
+	defer file.Close()
 
-	buildNum := os.Getenv(buildNumParam)
-	if buildNum == "" {
-		buildNum = fmt.Sprintf("%d", time.Now().UnixMilli())
-		os.Setenv(buildNumParam, buildNum)
-	}
-
-	os.Setenv(clusterNameParam, nc.clusterNames)
-	os.Setenv(rancherURLParam, nc.config.RancherURL)
-	os.Setenv(adminTokenParam, nc.config.AdminToken)
-	os.Setenv(userTokenParam, nc.config.AdminToken)
-
-	os.Setenv(testContainerParam, jobName+"_"+buildNum+"_test")
-	os.Setenv(pytestOptionsParam, networkChecksPyTestOption)
-	os.Setenv(testDirParam, "tests/v3_api/")
-	os.Setenv(rootPathParam, "/src/rancher-validation/")
-
-	os.Setenv("RANCHER_VALIDATE_RESOURCES_PREFIX", "test-nc")
-	os.Setenv("RANCHER_CREATE_RESOURCES_PREFIX", "test-nc")
-	os.Setenv("RANCHER_ENABLE_HOST_NODE_PORT_TESTS", "True")
-	os.Setenv("RANCHER_CHECK_FOR_LB", "False")
-	os.Setenv("RANCHER_SKIP_INGRESS", "False")
-	os.Setenv("RANCHER_PROJECT_ISOLATION", "disabled")
-	os.Setenv("RANCHER_TEST_RBAC", "False")
-	os.Setenv("RANCHER_CLEANUP_CLUSTER", "False")
-	os.Setenv("RANCHER_HARDENED_CLUSTER", "False")
-	os.Setenv("RANCHER_SKIP_PING_CHECK_TEST", "False")
-	os.Setenv("RANCHER_UPGRADE_CHECK", "preupgrade")
-
-	if nc.config.AdminToken == nc.config.UserToken {
-		os.Setenv("USER", "admin")
-		os.Setenv("USERNAME", "admin")
-	} else {
-		os.Setenv("USER", nc.config.Username)
-		os.Setenv("USERNAME", nc.config.Username)
+	// Write the string "Hello, World!" to the file
+	_, errs = file.WriteString(content)
+	if errs != nil {
+		fmt.Println("Failed to write to file:", errs) //print the failed message
+		return
 	}
 }
+
+// func (nc *NetworkChecks) setEnv() {
+
+// 	jobName := os.Getenv(jobNameParam)
+// 	if jobName == "" {
+// 		jobName = "provisioning-network-checks"
+// 		os.Setenv(jobNameParam, jobName)
+// 	}
+
+// 	buildNum := os.Getenv(buildNumParam)
+// 	if buildNum == "" {
+// 		buildNum = fmt.Sprintf("%d", time.Now().UnixMilli())
+// 		os.Setenv(buildNumParam, buildNum)
+// 	}
+
+// 	os.Setenv(clusterNameParam, nc.clusterNames)
+// 	os.Setenv(rancherURLParam, nc.config.RancherURL)
+// 	os.Setenv(adminTokenParam, nc.config.AdminToken)
+// 	os.Setenv(userTokenParam, nc.config.AdminToken)
+
+// 	os.Setenv(pytestOptionsParam, networkChecksPyTestOption)
+// 	os.Setenv(testDirParam, "tests/v3_api/")
+// 	os.Setenv(rootPathParam, "/src/rancher-validation/")
+
+// 	os.Setenv("RANCHER_VALIDATE_RESOURCES_PREFIX", "test-nc")
+// 	os.Setenv("RANCHER_CREATE_RESOURCES_PREFIX", "test-nc")
+// 	os.Setenv("RANCHER_ENABLE_HOST_NODE_PORT_TESTS", "True")
+// 	os.Setenv("RANCHER_CHECK_FOR_LB", "False")
+// 	os.Setenv("RANCHER_SKIP_INGRESS", "False")
+// 	os.Setenv("RANCHER_PROJECT_ISOLATION", "disabled")
+// 	os.Setenv("RANCHER_TEST_RBAC", "False")
+// 	os.Setenv("RANCHER_CLEANUP_CLUSTER", "False")
+// 	os.Setenv("RANCHER_HARDENED_CLUSTER", "False")
+// 	os.Setenv("RANCHER_SKIP_PING_CHECK_TEST", "False")
+// 	os.Setenv("RANCHER_UPGRADE_CHECK", "preupgrade")
+
+// 	if nc.config.AdminToken == nc.config.UserToken {
+// 		os.Setenv("USER", "admin")
+// 		os.Setenv("USERNAME", "admin")
+// 	} else {
+// 		os.Setenv("USER", nc.config.Username)
+// 		os.Setenv("USERNAME", nc.config.Username)
+// 	}
+
+// 	fmt.Sprintf(fileContent,
+// 		nc.clusterNames, nc.config.RancherURL, nc.config.AdminToken, nc.config.UserToken)
+
+// }

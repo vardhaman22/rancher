@@ -1,6 +1,7 @@
 #!groovy
 node {
     def rootPath = "/root/go/src/github.com/rancher/rancher/tests/v2/validation/"
+    def netcheckFileName =  "netcheck.env"
     def job_name = "${JOB_NAME}"
     if (job_name.contains('/')) { 
       job_names = job_name.split('/')
@@ -105,6 +106,7 @@ node {
 
                   writeFile file: filename, text: configContents
                   env.CATTLE_TEST_CONFIG = rootPath+filename
+                  env.CATTLE_ENV_FILE = rootPath+netcheckFileName
                 }
 
                 sh "./tests/v2/validation/configure.sh"
@@ -114,6 +116,9 @@ node {
                 try {
                   sh "docker run --name ${testContainer} -t --env-file ${envFile} " +
                   "${imageName} sh -c \"/root/go/bin/gotestsum --format standard-verbose --packages=${testsDir} --junitfile ${testResultsOut} -- ${GOTEST_TESTCASE} -timeout=${timeout} -v\""
+
+                  sh "docker cp ${testContainer}:${rootPath}${netcheckFileName} ."
+                  load netcheckFileName
                 } catch(err) {
                   echo 'Test run had failures. Collecting results...'
                 }

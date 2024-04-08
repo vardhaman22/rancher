@@ -165,7 +165,7 @@ func (c Controller) getCertsFromUserCluster() (map[string]pki.CertificatePKI, er
 func deleteUnusedCerts(certsExpInfo map[string]v32.CertExpiration, rancherKubernetesEngineConfig *rketypes.RancherKubernetesEngineConfig) {
 	unusedCerts := make(map[string]bool)
 	for k := range certsExpInfo {
-		if strings.HasPrefix(k, pki.EtcdCertName) || strings.HasPrefix(k, pki.KubeletCertName) {
+		if (strings.HasPrefix(k, pki.EtcdCertName) || strings.HasPrefix(k, pki.KubeletCertName)) && k != pki.EtcdCACertName {
 			unusedCerts[k] = true
 		}
 	}

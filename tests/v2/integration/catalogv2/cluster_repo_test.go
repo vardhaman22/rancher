@@ -51,7 +51,7 @@ const (
 	StableHTTPRepoURL   = "https://releases.rancher.com/server-charts/stable"
 
 	GitClusterRepoName      = "test-git-cluster-repo"
-	RancherChartsGitRepoURL = "https://github.com/krunalhinguu/charts"
+	RancherChartsGitRepoURL = "https://github.com/vardhaman22/rancher-charts"
 	RKE2ChartsGitRepoURL    = "https://git.rancher.io/rke2-charts"
 
 	OCIClusterRepoName = "test-oci-cluster-repo"

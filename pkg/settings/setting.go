@@ -147,7 +147,7 @@ var (
 
 	// ChartDefaultURL represents the default URL for the system charts repo. It should only be set for test or
 	// debug purposes.
-	ChartDefaultURL = NewSetting("chart-default-url", "https://git.rancher.io/")
+	ChartDefaultURL = NewSetting("chart-default-url", "https://github.com/vardhaman22/rancher-charts")
 
 	// ConfigMapName name of the configmap that stores rancher configuration information.
 	// Deprecated: to be removed in 2.8.0

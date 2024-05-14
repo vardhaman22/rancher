@@ -420,10 +420,10 @@ func GetEnvKey(key string) string {
 
 func getMetadataConfig() string {
 	// branch := KDMBranch.Get()
-	branch := "rancher-1.29"
+	branch := "k8s-130"
 	data := map[string]interface{}{
 		// "url":                      fmt.Sprintf("https://releases.rancher.com/kontainer-driver-metadata/%s/data.json", branch),
-		"url":                      fmt.Sprintf("https://raw.githubusercontent.com/krunalhinguu/kontainer-driver-metadata/%s/data/data.json", branch),
+		"url":                      fmt.Sprintf("https://raw.githubusercontent.com/vardhaman22/rancher-kontainer-driver-metadata/%s/data/data.json", branch),
 		"refresh-interval-minutes": "1440",
 	}
 	ans, err := json.Marshal(data)

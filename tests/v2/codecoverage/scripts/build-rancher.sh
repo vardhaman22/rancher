@@ -36,4 +36,4 @@ CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -tags k8s \
   -o tests/v2/codecoverage/bin \
   ./tests/v2/codecoverage/rancher
  
-curl -sLf https://releases.rancher.com/kontainer-driver-metadata/${CATTLE_KDM_BRANCH}/data.json > tests/v2/codecoverage/bin/data.json
+curl -sLf https://raw.githubusercontent.com/vardhaman22/rancher-kontainer-driver-metadata/k8s-130/data/data.json > tests/v2/codecoverage/bin/data.json

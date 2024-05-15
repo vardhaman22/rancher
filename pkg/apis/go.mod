@@ -4,7 +4,13 @@ go 1.22.0
 
 toolchain go1.22.1
 
-replace github.com/rancher/rke => github.com/krunalhinguu/rke v1.29.3-rancher1
+replace (
+	github.com/rancher/aks-operator => github.com/vardhaman22/aks-operator v1.30.0-rancher2
+	github.com/rancher/eks-operator => github.com/vardhaman22/eks-operator v1.30.0-rancher1
+	github.com/rancher/gke-operator => github.com/vardhaman22/gke-operator v1.30.0-rancher1
+	github.com/rancher/norman => github.com/vardhaman22/norman v1.30.0-rancher1
+	github.com/rancher/rke => github.com/vardhaman22/rancher-rke v1.30.0-rancher1
+)
 
 replace (
 	k8s.io/api => k8s.io/api v0.30.0
@@ -12,7 +18,7 @@ replace (
 	k8s.io/apimachinery => k8s.io/apimachinery v0.30.0
 	k8s.io/apiserver => k8s.io/apiserver v0.30.0
 	k8s.io/cli-runtime => k8s.io/cli-runtime v0.30.0
-	k8s.io/client-go => github.com/rancher/client-go v1.29.3-rancher1
+	k8s.io/client-go => k8s.io/client-go v0.30.0
 	k8s.io/cloud-provider => k8s.io/cloud-provider v0.30.0
 	k8s.io/component-base => k8s.io/component-base v0.30.0
 	k8s.io/controller-manager => k8s.io/controller-manager v0.30.0

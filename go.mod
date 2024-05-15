@@ -1,10 +1,20 @@
 module github.com/rancher/rancher
 
-go 1.22
+go 1.22.0
+
+toolchain go1.22.2
 
 replace (
-	github.com/rancher/rke => github.com/krunalhinguu/rke v1.29.3-rancher1
+	github.com/rancher/aks-operator => github.com/vardhaman22/aks-operator v1.30.0-rancher2
+	github.com/rancher/apiserver => github.com/vardhaman22/apiserver v1.30.0-rancher1
+	github.com/rancher/channelserver => github.com/vardhaman22/channelserver v1.30.0-rancher1
+	github.com/rancher/eks-operator => github.com/vardhaman22/eks-operator v1.30.0-rancher1
+	github.com/rancher/gke-operator => github.com/vardhaman22/gke-operator v1.30.0-rancher1
+	github.com/rancher/machine => github.com/vardhaman22/machine v1.30.0-rancher1
+	github.com/rancher/norman => github.com/vardhaman22/norman v1.30.0-rancher1
+	github.com/rancher/rke => github.com/vardhaman22/rancher-rke v1.30.0-rancher1
 	github.com/rancher/shepherd => github.com/caliskanugur/shepherd v0.0.0-20240507144611-b10827fbb1f1
+	github.com/rancher/steve => github.com/vardhaman22/steve v1.30.0-rancher1
 )
 
 replace (
@@ -129,12 +139,12 @@ require (
 	github.com/rancher/aks-operator v1.9.0-rc.1
 	github.com/rancher/apiserver v0.0.0-20240503193545-2e1b0ddd9791
 	github.com/rancher/channelserver v0.6.1-0.20240212155841-07630c8295da
-	github.com/rancher/dynamiclistener v0.5.0-rc6
+	github.com/rancher/dynamiclistener v0.6.0-rc1
 	github.com/rancher/eks-operator v1.9.0-rc.1
 	github.com/rancher/fleet/pkg/apis v0.0.0-20231017140638-93432f288e79
 	github.com/rancher/gke-operator v1.9.0-rc.1
 	github.com/rancher/kubernetes-provider-detector v0.1.5
-	github.com/rancher/lasso v0.0.0-20240424194130-d87ec407d941
+	github.com/rancher/lasso v0.0.0-20240430201833-6f3def65ffc5
 	github.com/rancher/machine v0.15.0-rancher113
 	github.com/rancher/norman v0.0.0-20240503193601-9f5f6586bb5b
 	github.com/rancher/rancher/pkg/client v0.0.0
@@ -143,6 +153,7 @@ require (
 	github.com/rancher/steve v0.0.0-20240510175329-a9bf8c7e9cad
 	github.com/rancher/system-upgrade-controller/pkg/apis v0.0.0-20210727200656-10b094e30007
 	github.com/rancher/wrangler/v2 v2.2.0-rc6
+	github.com/rancher/wrangler/v3 v3.0.0-rc2
 	github.com/robfig/cron v1.1.0
 	github.com/sirupsen/logrus v1.9.3
 	github.com/stretchr/testify v1.9.0
@@ -163,10 +174,10 @@ require (
 	gopkg.in/yaml.v2 v2.4.0
 	gopkg.in/yaml.v3 v3.0.1
 	helm.sh/helm/v3 v3.14.2
-	k8s.io/api v0.29.4
-	k8s.io/apiextensions-apiserver v0.29.4
-	k8s.io/apimachinery v0.29.4
-	k8s.io/apiserver v0.29.4
+	k8s.io/api v0.30.0
+	k8s.io/apiextensions-apiserver v0.30.0
+	k8s.io/apimachinery v0.30.0
+	k8s.io/apiserver v0.30.0
 	k8s.io/cli-runtime v0.30.0
 	k8s.io/client-go v12.0.0+incompatible
 	k8s.io/gengo v0.0.0-20240310015720-9cff6334dab4
@@ -229,7 +240,7 @@ require (
 	github.com/go-openapi/strfmt v0.22.2 // indirect
 	github.com/go-openapi/validate v0.22.1 // indirect
 	github.com/golang-jwt/jwt/v5 v5.2.1 // indirect
-	github.com/google/cel-go v0.17.7 // indirect
+	github.com/google/cel-go v0.17.8 // indirect
 	github.com/google/go-intervals v0.0.2 // indirect
 	github.com/google/s2a-go v0.1.7 // indirect
 	github.com/googleapis/enterprise-certificate-proxy v0.3.2 // indirect
@@ -271,6 +282,7 @@ require (
 	google.golang.org/genproto/googleapis/api v0.0.0-20231106174013-bbf56f31fb17 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20231120223509-83a465c0220f // indirect
 	gopkg.in/go-jose/go-jose.v2 v2.6.3 // indirect
+	k8s.io/gengo/v2 v2.0.0-20240228010128-51d4e06bde70 // indirect
 	k8s.io/pod-security-admission v0.30.0 // indirect
 )
 
@@ -432,14 +444,14 @@ require (
 	gopkg.in/inf.v0 v0.9.1 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	k8s.io/cluster-bootstrap v0.28.4 // indirect
-	k8s.io/code-generator v0.29.4 // indirect
-	k8s.io/component-base v0.29.4 // indirect
+	k8s.io/code-generator v0.30.0 // indirect
+	k8s.io/component-base v0.30.0 // indirect
 	k8s.io/component-helpers v0.30.0 // indirect
 	k8s.io/klog v1.0.0 // indirect
 	k8s.io/klog/v2 v2.120.1 // indirect
 	k8s.io/kube-openapi v0.0.0-20240411171206-dc4e619f62f3 // indirect
 	oras.land/oras-go v1.2.4 // indirect
-	sigs.k8s.io/apiserver-network-proxy/konnectivity-client v0.28.0 // indirect
+	sigs.k8s.io/apiserver-network-proxy/konnectivity-client v0.29.0 // indirect
 	sigs.k8s.io/cli-utils v0.35.0 // indirect
 	sigs.k8s.io/json v0.0.0-20221116044647-bc3834ca7abd // indirect
 	sigs.k8s.io/kustomize/api v0.13.5-0.20230601165947-6ce0bf390ce3 // indirect

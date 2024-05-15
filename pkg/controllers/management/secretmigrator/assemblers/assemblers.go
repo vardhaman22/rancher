@@ -11,7 +11,7 @@ import (
 	rketypes "github.com/rancher/rke/types"
 	"github.com/sirupsen/logrus"
 	corev1 "k8s.io/api/core/v1"
-	configv1 "k8s.io/apiserver/pkg/apis/config/v1"
+	configv1 "k8s.io/apiserver/pkg/apis/apiserver/v1"
 	"k8s.io/kubernetes/pkg/credentialprovider"
 )
 

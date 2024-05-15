@@ -21,7 +21,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/runtime/schema"
-	configv1 "k8s.io/apiserver/pkg/apis/config/v1"
+	configv1 "k8s.io/apiserver/pkg/apis/apiserver/v1"
 	"k8s.io/kubernetes/pkg/credentialprovider"
 )
 

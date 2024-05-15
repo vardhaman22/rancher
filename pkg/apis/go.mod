@@ -44,7 +44,6 @@ require (
 	github.com/rancher/gke-operator v1.9.0-rc.1
 	github.com/rancher/norman v0.0.0-20240503193601-9f5f6586bb5b
 	github.com/rancher/rke v1.6.0-rc1
-	github.com/rancher/wrangler/v2 v2.2.0-rc6
 	github.com/rancher/wrangler/v3 v3.0.0-rc2
 	github.com/sirupsen/logrus v1.9.3
 	k8s.io/api v0.30.0

@@ -115,7 +115,7 @@ var (
 	ClusterTemplateEnforcement          = NewSetting("cluster-template-enforcement", "false")
 	InitialDockerRootDir                = NewSetting("initial-docker-root-dir", "/var/lib/docker")
 	SystemCatalog                       = NewSetting("system-catalog", "external") // Options are 'external' or 'bundled'
-	ChartDefaultBranch                  = NewSetting("chart-default-branch", "dev-v2.9")
+	ChartDefaultBranch                  = NewSetting("chart-default-branch", "bump-capi")
 	SystemManagedChartsOperationTimeout = NewSetting("system-managed-charts-operation-timeout", "300s")
 	FleetDefaultWorkspaceName           = NewSetting("fleet-default-workspace-name", fleetconst.ClustersDefaultNamespace) // fleetWorkspaceName to assign to clusters with none
 	ShellImage                          = NewSetting("shell-image", buildconfig.DefaultShellVersion)
@@ -147,7 +147,7 @@ var (
 
 	// ChartDefaultURL represents the default URL for the system charts repo. It should only be set for test or
 	// debug purposes.
-	ChartDefaultURL = NewSetting("chart-default-url", "https://git.rancher.io/")
+	ChartDefaultURL = NewSetting("chart-default-url", "https://github.com/vardhaman22/rancher-charts")
 
 	// ConfigMapName name of the configmap that stores rancher configuration information.
 	// Deprecated: to be removed in 2.8.0

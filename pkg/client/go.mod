@@ -2,11 +2,9 @@ module github.com/rancher/rancher/pkg/client
 
 go 1.22
 
-replace k8s.io/client-go => github.com/rancher/client-go v1.29.3-rancher1
-
 require (
 	github.com/rancher/norman v0.0.0-20240503193601-9f5f6586bb5b
-	k8s.io/apimachinery v0.29.3
+	k8s.io/apimachinery v0.30.0
 )
 
 require (

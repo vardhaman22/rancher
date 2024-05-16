@@ -949,8 +949,6 @@ github.com/bugsnag/osext v0.0.0-20130617224835-0dd3f918b21b h1:otBG+dV+YK+Soembj
 github.com/bugsnag/osext v0.0.0-20130617224835-0dd3f918b21b/go.mod h1:obH5gd0BsqsP2LwDJ9aOkm/6J86V6lyAXCoQWGw3K50=
 github.com/bugsnag/panicwrap v0.0.0-20160118154447-aceac81c6e2f h1:7+HZb3PwI0cCUETyMDgPCvSta1y3idwBL8PHwSgelJk=
 github.com/bugsnag/panicwrap v0.0.0-20160118154447-aceac81c6e2f/go.mod h1:D/8v3kj0zr8ZAKg1AQ6crr+5VwKN5eIywRkfhyM/+dE=
-github.com/caliskanugur/shepherd v0.0.0-20240507144611-b10827fbb1f1 h1:aNbhaGUsAIkwjd8x6SzR6mF1/V00ynpd1Rykf/myV0I=
-github.com/caliskanugur/shepherd v0.0.0-20240507144611-b10827fbb1f1/go.mod h1:RZuVQEn5OAp2ol3FE7Fy5lyJPIG71Hy09RwAC6IHMOU=
 github.com/cenkalti/backoff/v4 v4.1.1/go.mod h1:scbssz8iZGpm3xbr14ovlUdkxfGXNInqkPWOWmG2CLw=
 github.com/cenkalti/backoff/v4 v4.2.1 h1:y4OZtCnogmCPw98Zjyt5a6+QwPLGkiQsYW5oUqylYbM=
 github.com/cenkalti/backoff/v4 v4.2.1/go.mod h1:Y3VNntkOUPxTVeUxJ/G5vcM//AlwfmyYozVcomhLiZE=
@@ -2012,6 +2010,8 @@ github.com/vardhaman22/norman v1.30.0-rancher1 h1:/4t/SKxAvC5aXuBkozfrFtlOoNaIOT
 github.com/vardhaman22/norman v1.30.0-rancher1/go.mod h1:KTt+gpNeJl/sSnfH3jDCVp0BdnapWyc5ll3sBCsBiNc=
 github.com/vardhaman22/rancher-rke v1.30.0-rancher1 h1:PXqgcviHtcyjfXITXiksDKfOk8zB7MNdRL5CgE+pHPc=
 github.com/vardhaman22/rancher-rke v1.30.0-rancher1/go.mod h1:/8RPuM4zqIHQS9XiIHCBPB7qcjLo3drJAFk6s6fMfvw=
+github.com/vardhaman22/shepherd v0.0.0-20240516040139-6785b437d57e h1:aCjvgxEPvRWazgqyAuUi2fxEfZ7Fkn9LiUJ4sgZNuDw=
+github.com/vardhaman22/shepherd v0.0.0-20240516040139-6785b437d57e/go.mod h1:VlJb/qqxM8T4XNiNOvC8JVBDsk9L6mJIwvXZ6L36pv8=
 github.com/vardhaman22/steve v1.30.0-rancher1 h1:MLuBOtN+2HwSybfv2r5wsdySVgDXx1fDLBk9KwmRXG4=
 github.com/vardhaman22/steve v1.30.0-rancher1/go.mod h1:/X7HeLtY+55ZOriXQzhs9wp/DaSKZ+R4mfT6aDcPFv0=
 github.com/vbatts/tar-split v0.11.5 h1:3bHCTIheBm1qFTcgh9oPu+nNBtX+XJIupG/vacinCts=

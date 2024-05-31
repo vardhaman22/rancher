@@ -237,6 +237,7 @@ var OriginMap = map[string]string{
 	"rancher-csp-adapter":                                     "https://github.com/rancher/csp-adapter",
 	"rancher-webhook":                                         "https://github.com/rancher/webhook",
 	"rke-tools":                                               "https://github.com/rancher/rke-tools",
+	"rancher-rke-tools":                                       "https://github.com/vardhaman22/rancher-rke-tools",
 	"rke2-cloud-provider":                                     "https://github.com/rancher/image-build-rke2-cloud-provider",
 	"rke2-runtime":                                            "https://github.com/rancher/rke2",
 	"rke2-upgrade":                                            "https://github.com/rancher/rke2-upgrade",

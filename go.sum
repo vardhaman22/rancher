@@ -2010,8 +2010,8 @@ github.com/vardhaman22/machine v1.30.0-rancher1 h1:xPPxL1OXS8tOIpFhelbsS+MkxBveQ
 github.com/vardhaman22/machine v1.30.0-rancher1/go.mod h1:HiTcLGYfrogaDFTSSwGji+CydloYIo+SmVZV8UnPdhc=
 github.com/vardhaman22/norman v1.30.0-rancher1 h1:/4t/SKxAvC5aXuBkozfrFtlOoNaIOT8vNB5Pw5+qVUE=
 github.com/vardhaman22/norman v1.30.0-rancher1/go.mod h1:KTt+gpNeJl/sSnfH3jDCVp0BdnapWyc5ll3sBCsBiNc=
-github.com/vardhaman22/rancher-rke v1.30.0-rancher1 h1:PXqgcviHtcyjfXITXiksDKfOk8zB7MNdRL5CgE+pHPc=
-github.com/vardhaman22/rancher-rke v1.30.0-rancher1/go.mod h1:/8RPuM4zqIHQS9XiIHCBPB7qcjLo3drJAFk6s6fMfvw=
+github.com/vardhaman22/rancher-rke v1.30.0-rancher2 h1:JoEUSmS1v4FKkpO0sLuDK8H2NV84IbFcmQ2BMrUqzIA=
+github.com/vardhaman22/rancher-rke v1.30.0-rancher2/go.mod h1:S89s7id7492flaPLPaqkc9Ab5aDSXPmjwYWFp1F+8qU=
 github.com/vardhaman22/shepherd v0.0.0-20240516040139-6785b437d57e h1:aCjvgxEPvRWazgqyAuUi2fxEfZ7Fkn9LiUJ4sgZNuDw=
 github.com/vardhaman22/shepherd v0.0.0-20240516040139-6785b437d57e/go.mod h1:VlJb/qqxM8T4XNiNOvC8JVBDsk9L6mJIwvXZ6L36pv8=
 github.com/vardhaman22/steve v1.30.0-rancher1 h1:MLuBOtN+2HwSybfv2r5wsdySVgDXx1fDLBk9KwmRXG4=

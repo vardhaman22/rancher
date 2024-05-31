@@ -9,7 +9,7 @@ replace (
 	github.com/rancher/eks-operator => github.com/vardhaman22/eks-operator v1.30.0-rancher1
 	github.com/rancher/gke-operator => github.com/vardhaman22/gke-operator v1.30.0-rancher1
 	github.com/rancher/norman => github.com/vardhaman22/norman v1.30.0-rancher1
-	github.com/rancher/rke => github.com/vardhaman22/rancher-rke v1.30.0-rancher1
+	github.com/rancher/rke => github.com/vardhaman22/rancher-rke v1.30.0-rancher2
 )
 
 replace (
@@ -99,7 +99,7 @@ require (
 	k8s.io/component-base v0.30.1 // indirect
 	k8s.io/klog/v2 v2.120.1 // indirect
 	k8s.io/kube-openapi v0.0.0-20240228011516-70dd3763d340 // indirect
-	k8s.io/kubernetes v1.29.4 // indirect
+	k8s.io/kubernetes v1.30.0 // indirect
 	k8s.io/utils v0.0.0-20231127182322-b307cd553661 // indirect
 	sigs.k8s.io/cli-utils v0.35.0 // indirect
 	sigs.k8s.io/json v0.0.0-20221116044647-bc3834ca7abd // indirect

@@ -12,7 +12,7 @@ replace (
 	github.com/rancher/gke-operator => github.com/vardhaman22/gke-operator v1.30.0-rancher1
 	github.com/rancher/machine => github.com/vardhaman22/machine v1.30.0-rancher1
 	github.com/rancher/norman => github.com/vardhaman22/norman v1.30.0-rancher1
-	github.com/rancher/rke => github.com/vardhaman22/rancher-rke v1.30.0-rancher1
+	github.com/rancher/rke => github.com/vardhaman22/rancher-rke v1.30.0-rancher2
 	github.com/rancher/shepherd => github.com/vardhaman22/shepherd v0.0.0-20240516040139-6785b437d57e
 	github.com/rancher/steve => github.com/vardhaman22/steve v1.30.0-rancher1
 )

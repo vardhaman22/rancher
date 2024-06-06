@@ -32,7 +32,7 @@ fi
 if [ -e /var/lib/rancher/k3s/server/db/etcd ]; then
   echo "INFO: Running k3s server --cluster-init --cluster-reset"
   set +e
-  k3s server --cluster-init --cluster-reset &> ./k3s-cluster-reset.log
+  k3s server --cluster-init --cluster-reset --prefer-bundled-bin  &> ./k3s-cluster-reset.log
   K3S_CR_CODE=$?
   if [ "${K3S_CR_CODE}" -ne 0 ]; then
     echo "ERROR:" && cat ./k3s-cluster-reset.log

@@ -123,7 +123,7 @@ func (m *MetadataController) refresh() error {
 	defer deleteMap(m.url)
 	if err := m.Refresh(m.url); err != nil {
 		logrus.Warnf("%v, Fallback to refresh from local file path %v", err, DataJSONLocation)
-		return fmt.Errorf("failed to refresh metadata and local fallback is disabled in RKE2/K3s-only mode")
+		return errors.Wrapf(err, "failed to refresh from local file path: %s", DataJSONLocation)
 	}
 	setFinalPath(m.url)
 	return nil
@@ -135,7 +135,7 @@ func (m *MetadataController) Refresh(url *MetadataURL) error {
 		return errors.Wrapf(err, "failed to refresh data from upstream %v", url.path)
 	}
 	logrus.Infof("driverMetadata: refreshing data from upstream %v", url.path)
-	return fmt.Errorf("failed to refresh metadata and local fallback is disabled in RKE2/K3s-only mode")
+	return errors.Wrap(err, "failed to create or update driverMetadata")
 }
 
 func GetURLSettingValue() (*MetadataURL, error) {

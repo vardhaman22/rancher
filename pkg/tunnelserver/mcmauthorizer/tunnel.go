@@ -20,7 +20,6 @@ import (
 	"github.com/rancher/norman/types/convert"
 	client "github.com/rancher/rancher/pkg/client/generated/management/v3"
 	v3 "github.com/rancher/rancher/pkg/generated/norman/management.cattle.io/v3"
-	"github.com/rancher/rancher/pkg/taints"
 	"github.com/rancher/rancher/pkg/types/config"
 	"github.com/sirupsen/logrus"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
@@ -140,7 +139,6 @@ func (t *Authorizer) Authorize(req *http.Request) (*Client, bool, error) {
 			node = node.DeepCopy()
 			node.Status.NodeConfig.Address = input.Node.CustomConfig.Address
 			node.Status.NodeConfig.InternalAddress = input.Node.CustomConfig.InternalAddress
-			node.Status.NodeConfig.Taints = taints.GetRKETaintsFromStrings(input.Node.CustomConfig.Taints)
 		}
 		return &Client{
 			Cluster:     cluster,

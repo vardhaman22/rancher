@@ -5,6 +5,8 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"encoding/base64"
+	"encoding/pem"
+	"errors"
 	"fmt"
 	"net"
 	"net/http"
@@ -28,7 +30,6 @@ import (
 	"github.com/rancher/rancher/pkg/settings"
 	"github.com/rancher/rancher/pkg/types/config"
 	"github.com/rancher/rancher/pkg/types/config/dialer"
-	"github.com/rancher/rke/pki/cert"
 	"github.com/rancher/steve/pkg/accesscontrol"
 	rbacv1 "github.com/rancher/wrangler/v3/pkg/generated/controllers/rbac/v1"
 	"github.com/rancher/wrangler/v3/pkg/ratelimit"
@@ -41,6 +42,9 @@ import (
 	"k8s.io/client-go/rest"
 	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
 )
+
+// CertificateBlockType is a possible value for pem.Block.Type.
+const certificateBlockType = "CERTIFICATE"
 
 type Manager struct {
 	httpsPort     int
@@ -389,7 +393,7 @@ func nameIgnoringTLSDialer(dialer dialer.Dialer, caBytes []byte) (func(string, s
 func VerifyIgnoreDNSName(caCertsPEM []byte) (func(rawCerts [][]byte, verifiedChains [][]*x509.Certificate) error, error) {
 	rootCAs := x509.NewCertPool()
 	if len(caCertsPEM) > 0 {
-		caCerts, err := cert.ParseCertsPEM(caCertsPEM)
+		caCerts, err := parseCertsPEM(caCertsPEM)
 		if err != nil {
 			return nil, err
 		}
@@ -630,4 +634,35 @@ func (m *Manager) SubjectAccessReviewForCluster(req *http.Request) (authv1.Subje
 		return nil, err
 	}
 	return userContext.K8sClient.AuthorizationV1().SubjectAccessReviews(), nil
+}
+
+// parseCertsPEM returns the x509.Certificates contained in the given PEM-encoded byte array
+// Returns an error if a certificate could not be parsed, or if the data does not contain any certificates
+func parseCertsPEM(pemCerts []byte) ([]*x509.Certificate, error) {
+	ok := false
+	certs := []*x509.Certificate{}
+	for len(pemCerts) > 0 {
+		var block *pem.Block
+		block, pemCerts = pem.Decode(pemCerts)
+		if block == nil {
+			break
+		}
+		// Only use PEM "CERTIFICATE" blocks without extra headers
+		if block.Type != certificateBlockType || len(block.Headers) != 0 {
+			continue
+		}
+
+		cert, err := x509.ParseCertificate(block.Bytes)
+		if err != nil {
+			return certs, err
+		}
+
+		certs = append(certs, cert)
+		ok = true
+	}
+
+	if !ok {
+		return certs, errors.New("data does not contain any valid RSA or ECDSA certificates")
+	}
+	return certs, nil
 }

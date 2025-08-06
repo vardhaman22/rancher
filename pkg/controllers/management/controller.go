@@ -14,6 +14,7 @@ import (
 	"github.com/rancher/rancher/pkg/controllers/management/clusterprovisioner"
 	"github.com/rancher/rancher/pkg/controllers/management/clusterstats"
 	"github.com/rancher/rancher/pkg/controllers/management/clusterstatus"
+	"github.com/rancher/rancher/pkg/controllers/management/drivers/kev2"
 	"github.com/rancher/rancher/pkg/controllers/management/drivers/kontainerdriver"
 	"github.com/rancher/rancher/pkg/controllers/management/drivers/nodedriver"
 	"github.com/rancher/rancher/pkg/controllers/management/node"
@@ -42,6 +43,7 @@ func Register(ctx context.Context, management *config.ManagementContext, manager
 	clusterstatus.Register(ctx, management)
 	kontainerdriver.Register(ctx, management)
 	nodedriver.Register(ctx, management)
+	kev2.Register(ctx, management, wrangler)
 	cloudcredential.Register(ctx, management, wrangler)
 	node.Register(ctx, management, manager)
 

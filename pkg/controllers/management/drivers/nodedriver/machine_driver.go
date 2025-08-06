@@ -15,6 +15,7 @@ import (
 	"github.com/rancher/norman/types/convert"
 	v32 "github.com/rancher/rancher/pkg/apis/management.cattle.io/v3"
 	"github.com/rancher/rancher/pkg/controllers/management/drivers"
+	"github.com/rancher/rancher/pkg/controllers/management/drivers/utils"
 	v1 "github.com/rancher/rancher/pkg/generated/norman/core/v1"
 	v3 "github.com/rancher/rancher/pkg/generated/norman/management.cattle.io/v3"
 	"github.com/rancher/rancher/pkg/types/config"
@@ -243,7 +244,7 @@ func (m *Lifecycle) download(obj *v32.NodeDriver) (*v32.NodeDriver, error) {
 }
 
 func (m *Lifecycle) createCredSchema(obj *v32.NodeDriver, credFields map[string]v32.Field) (*v32.NodeDriver, error) {
-	name := credentialConfigSchemaName(obj.Spec.DisplayName)
+	name := utils.CredentialConfigSchemaName(obj.Spec.DisplayName)
 	credSchema, err := m.schemaLister.Get("", name)
 
 	if name == "amazonec2credentialconfig" {
@@ -359,7 +360,7 @@ func (m *Lifecycle) Updated(obj *v32.NodeDriver) (runtime.Object, error) {
 		return obj, err
 	}
 
-	if err := m.createOrUpdateNodeForEmbeddedTypeCredential(credentialConfigSchemaName(obj.Spec.DisplayName),
+	if err := m.createOrUpdateNodeForEmbeddedTypeCredential(utils.CredentialConfigSchemaName(obj.Spec.DisplayName),
 		obj.Spec.DisplayName+"credentialConfig", obj.Spec.Active || obj.Spec.AddCloudCredential); err != nil {
 		return obj, err
 	}
@@ -484,10 +485,6 @@ func getCredFields(annotations map[string]string) (map[string]bool, map[string]b
 		getMap(annotations["passwordFields"]),
 		ParseKeyValueString(annotations["defaults"]),
 		getMap(annotations["optionalCredentialFields"])
-}
-
-func credentialConfigSchemaName(driverName string) string {
-	return fmt.Sprintf("%s%s", driverName, "credentialconfig")
 }
 
 func updateDefault(credField v32.Field, val, kind string) v32.Field {

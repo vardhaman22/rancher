@@ -5,6 +5,7 @@ go 1.24.0
 toolchain go1.24.7
 
 replace (
+	github.com/rancher/ali-operator => ../../../ali-operator
 	k8s.io/api => k8s.io/api v0.34.1
 	k8s.io/apiextensions-apiserver => k8s.io/apiextensions-apiserver v0.34.1
 	k8s.io/apimachinery => k8s.io/apimachinery v0.34.1

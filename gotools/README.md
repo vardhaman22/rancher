@@ -1,6 +1,6 @@
 # Gotools
 
-This directory contains Go-based tools to use with [goa
+This directory contains Go-based tools to use with [go
 tool](https://tip.golang.org/doc/modules/managing-dependencies#tools).
 
 Each tool is within its own directory with its own `go.mod` file to avoid

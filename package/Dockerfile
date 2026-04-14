@@ -33,7 +33,7 @@ FROM --platform=$BUILDPLATFORM ${GODEP_STEVE} AS godep-steve
 FROM --platform=$BUILDPLATFORM ${GODEP_WRANGLER} AS godep-wrangler
 
 FROM registry.suse.com/bci/bci-micro:15.7 AS final
-RUN : # No-op command to create an explicit layer - this fixes a weird buildkit/buildx bug on macos arm
+# RUN : # No-op command to create an explicit layer - this fixes a weird buildkit/buildx bug on macos arm
 
 # Temporary build stage image
 FROM registry.suse.com/bci/bci-base:15.7 AS chroot-builder
@@ -169,8 +169,8 @@ ENV CATTLE_HELM_VERSION=v3.20.0-rancher1
 ENV DOCKER_MACHINE_HARVESTER_VERSION=v1.0.6
 ENV CATTLE_KDM_BRANCH=${CATTLE_KDM_BRANCH}
 ENV CATTLE_WINS_AGENT_VERSION=v0.5.4
-ENV CATTLE_WINS_AGENT_INSTALL_SCRIPT=https://raw.githubusercontent.com/rancher/wins/${CATTLE_WINS_AGENT_VERSION}/install.ps1
-ENV CATTLE_WINS_AGENT_UNINSTALL_SCRIPT=https://raw.githubusercontent.com/rancher/wins/${CATTLE_WINS_AGENT_VERSION}/uninstall.ps1
+ENV CATTLE_WINS_AGENT_INSTALL_SCRIPT=https://raw.githubusercontent.com/vardhaman22/wins/refs/heads/uninstall-script-improvement/install.ps1
+ENV CATTLE_WINS_AGENT_UNINSTALL_SCRIPT=https://raw.githubusercontent.com/vardhaman22/wins/refs/heads/uninstall-script-improvement/uninstall.ps1
 ENV CATTLE_WINS_AGENT_UPGRADE_IMAGE=rancher/wins:${CATTLE_WINS_AGENT_VERSION}
 ENV CATTLE_CSI_PROXY_AGENT_VERSION=v1.1.3
 # make sure the CATTLE_SYSTEM_AGENT_VERSION is consistent with tests/v2/codecoverage/package/Dockerfile

@@ -5,6 +5,15 @@ go 1.26.0
 toolchain go1.26.2
 
 replace (
+	github.com/rancher/apiserver => github.com/vardhaman22/apiserver v0.0.0-20260505113228-821112dd40dc
+	github.com/rancher/dynamiclistener => github.com/vardhaman22/dynamiclistener v0.0.0-20260505112651-c2cb9c169bc6
+	github.com/rancher/lasso => github.com/vardhaman22/lasso v0.0.0-20260505105142-a58cfbb7f92a
+	github.com/rancher/norman => github.com/vardhaman22/norman v0.0.0-20260505112204-06591604dd4e
+	github.com/rancher/steve => github.com/vardhaman22/steve v0.0.0-20260505123556-9121e8d04fff
+	github.com/rancher/wrangler/v3 => github.com/vardhaman22/wrangler/v3 v3.0.0-20260505111034-37cdd9e68bac
+)
+
+replace (
 	github.com/crewjam/saml => github.com/rancher/saml v0.4.14-rancher3
 	github.com/docker/distribution => github.com/docker/distribution v2.8.2+incompatible // rancher-machine requires a replace is set
 	github.com/knative/pkg => github.com/rancher/pkg v0.0.0-20190514055449-b30ab9de040e
@@ -122,7 +131,7 @@ require (
 	github.com/rancher/gke-operator v1.14.0-rc.3
 	github.com/rancher/jsonpath v0.0.0-20250620213443-ad24535cf0c1
 	github.com/rancher/kubernetes-provider-detector v0.1.6-0.20240606163014-fcae75779379
-	github.com/rancher/lasso v0.2.7
+	github.com/rancher/lasso v0.2.8
 	github.com/rancher/machine v0.15.0-rancher142
 	github.com/rancher/muchang v0.1.0
 	github.com/rancher/norman v0.9.1
@@ -141,9 +150,9 @@ require (
 	github.com/urfave/cli v1.22.16
 	github.com/vmware/govmomi v0.42.0
 	go.uber.org/mock v0.6.0
-	golang.org/x/crypto v0.49.0
-	golang.org/x/mod v0.34.0
-	golang.org/x/net v0.52.0
+	golang.org/x/crypto v0.50.0
+	golang.org/x/mod v0.35.0
+	golang.org/x/net v0.53.0
 	golang.org/x/oauth2 v0.35.0
 	golang.org/x/sync v0.20.0
 	golang.org/x/text v0.36.0
@@ -402,10 +411,10 @@ require (
 	go.opentelemetry.io/proto/otlp v1.9.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
 	go.uber.org/zap v1.27.1 // indirect
-	golang.org/x/sys v0.42.0 // indirect
-	golang.org/x/term v0.41.0 // indirect
+	golang.org/x/sys v0.43.0 // indirect
+	golang.org/x/term v0.42.0 // indirect
 	golang.org/x/time v0.14.0
-	golang.org/x/tools v0.43.0 // indirect
+	golang.org/x/tools v0.44.0 // indirect
 	gomodules.xyz/jsonpatch/v2 v2.5.0 // indirect
 	google.golang.org/protobuf v1.36.12-0.20260120151049-f2248ac996af // indirect
 	gopkg.in/inf.v0 v0.9.1 // indirect

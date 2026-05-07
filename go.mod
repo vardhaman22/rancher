@@ -9,6 +9,8 @@ replace (
 	github.com/rancher/dynamiclistener => github.com/vardhaman22/dynamiclistener v0.0.0-20260505112651-c2cb9c169bc6
 	github.com/rancher/lasso => github.com/vardhaman22/lasso v0.0.0-20260505105142-a58cfbb7f92a
 	github.com/rancher/norman => github.com/vardhaman22/norman v0.0.0-20260505112204-06591604dd4e
+	github.com/rancher/remotedialer => github.com/vardhaman22/remotedialer v0.0.0-20260507092359-d9fb95ef9c9a
+	github.com/rancher/remotedialer-proxy => github.com/vardhaman22/remotedialer-proxy v0.0.0-20260507090843-a0793301cd55
 	github.com/rancher/steve => github.com/vardhaman22/steve v0.0.0-20260505123556-9121e8d04fff
 	github.com/rancher/wrangler/v3 => github.com/vardhaman22/wrangler/v3 v3.0.0-20260505111034-37cdd9e68bac
 )
@@ -125,7 +127,7 @@ require (
 	github.com/rancher/ali-operator v1.14.0-rc.1
 	github.com/rancher/apiserver v0.9.2
 	github.com/rancher/channelserver v0.10.0
-	github.com/rancher/dynamiclistener v0.7.4
+	github.com/rancher/dynamiclistener v0.8.1
 	github.com/rancher/eks-operator v1.14.0-rc.5
 	github.com/rancher/fleet/pkg/apis v0.15.0-beta.4
 	github.com/rancher/gke-operator v1.14.0-rc.3
@@ -136,8 +138,8 @@ require (
 	github.com/rancher/muchang v0.1.0
 	github.com/rancher/norman v0.9.1
 	github.com/rancher/rancher/pkg/client v0.0.0
-	github.com/rancher/remotedialer v0.6.1-rc.1
-	github.com/rancher/remotedialer-proxy v0.7.0-rc.5
+	github.com/rancher/remotedialer v0.6.1
+	github.com/rancher/remotedialer-proxy v0.7.2
 	github.com/rancher/rke v1.8.0
 	github.com/rancher/shepherd v0.0.0-20260430211500-1f50d155268e
 	github.com/rancher/steve v0.9.7

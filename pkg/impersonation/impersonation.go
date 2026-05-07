@@ -230,7 +230,7 @@ func (i *impersonator) createServiceAccount(name string, role *rbacv1.ClusterRol
 func (i *impersonator) createNamespace() error {
 	_, err := i.namespaceCache.Get(ImpersonationNamespace)
 	if apierrors.IsNotFound(err) {
-		logrus.Debugf("impersonation: creating namespace %s", ImpersonationNamespace)
+		logrus.Infof("impersonation: creating namespace %s", ImpersonationNamespace)
 		_, err = i.namespaceClient.Create(&corev1.Namespace{
 			ObjectMeta: metav1.ObjectMeta{
 				Name: ImpersonationNamespace,
@@ -242,6 +242,9 @@ func (i *impersonator) createNamespace() error {
 		if apierrors.IsAlreadyExists(err) {
 			return nil
 		}
+	}
+	if err != nil {
+		logrus.Errorf("error impersonation: creating namespace %s", err.Error())
 	}
 	return err
 }

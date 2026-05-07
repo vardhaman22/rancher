@@ -612,10 +612,6 @@ github.com/rancher/moq v0.0.0-20200712062324-13d1f37d2d77 h1:k+vzmkZQsH06rZnDr+p
 github.com/rancher/moq v0.0.0-20200712062324-13d1f37d2d77/go.mod h1:wpITyDPTi/Na5h73XkbuEf2AP9fbgrIGqqxVzFhYD6U=
 github.com/rancher/muchang v0.1.0 h1:Yuu3b7eFRqnnbp6qbLsP/5SY3IKGDj2mUUTzy4AiUVw=
 github.com/rancher/muchang v0.1.0/go.mod h1:sVg6mngaaZIpSegx/I79rymxm7n5gbI8j5PeoVoIONs=
-github.com/rancher/remotedialer v0.6.1-rc.1 h1:4ajK61jX8WeAwKgjbOgIbddbeWaOMBpzhAfQfd044Ro=
-github.com/rancher/remotedialer v0.6.1-rc.1/go.mod h1:aJT4SwOopyWw66G7VGB/Bl9HABbXFaQfhd7E35P1oME=
-github.com/rancher/remotedialer-proxy v0.7.0-rc.5 h1:3ZpVA+dHj4O8yC4PVxhGb3S2BBKAu9g0A+QjokSuxyk=
-github.com/rancher/remotedialer-proxy v0.7.0-rc.5/go.mod h1:KNwFb7s5a6LScb2tDU8ZHoKaaPc8R+hdaK11GgIHMgw=
 github.com/rancher/rke v1.8.0 h1:87jeoOccnnNCq27YgWgMh4o0GVrrVKbw+zfo+cHMZlo=
 github.com/rancher/rke v1.8.0/go.mod h1:x9N1abruzDFMwTpqq2cnaDYpKCptlNoW8VraNWB6Pc4=
 github.com/rancher/saml v0.4.14-rancher3 h1:2NN6cPqm9FJeiT25x8+gLHWGdulsEak33cHRkGaJ5v0=
@@ -700,6 +696,10 @@ github.com/vardhaman22/lasso v0.0.0-20260505105142-a58cfbb7f92a h1:Ns/WvS21CkFCY
 github.com/vardhaman22/lasso v0.0.0-20260505105142-a58cfbb7f92a/go.mod h1:+c/6ALmcASGy/g3x2JyAWezjdw6Nvy7vEJYARCQRPtg=
 github.com/vardhaman22/norman v0.0.0-20260505112204-06591604dd4e h1:wS8I0sJ4B983lGOIAvAO+Ao1MwBd/LvAV5dBOmMypZE=
 github.com/vardhaman22/norman v0.0.0-20260505112204-06591604dd4e/go.mod h1:budgAke6cMeFiQ9eEdqyBRL/08a1AS+uJf4yi8o+NKs=
+github.com/vardhaman22/remotedialer v0.0.0-20260507092359-d9fb95ef9c9a h1:YxSTp1ElmlY9oxHYVaE6S1IaD9Pasi4O+zPZcWXDv84=
+github.com/vardhaman22/remotedialer v0.0.0-20260507092359-d9fb95ef9c9a/go.mod h1:CW6Q8F8IESN05/yl48OSwhVi54nDwVQQriV16zAiGkg=
+github.com/vardhaman22/remotedialer-proxy v0.0.0-20260507090843-a0793301cd55 h1:PBSTgwAtdmxHVTdPhWi4l1iSTUrbMNZgqdibY+dUJ9Q=
+github.com/vardhaman22/remotedialer-proxy v0.0.0-20260507090843-a0793301cd55/go.mod h1:Yqtcdb6B8u2++XWGDSWGZp+5LGKualWwbPJV7l7Vhxo=
 github.com/vardhaman22/steve v0.0.0-20260505123556-9121e8d04fff h1:N8rprSgak480YYbrKuC2rVkPDD8t9nSP2L8D1nnGXP4=
 github.com/vardhaman22/steve v0.0.0-20260505123556-9121e8d04fff/go.mod h1:y+1fmom1uUE5NNYPAzPyjhbbWScpTvkKwQET8MPv3EU=
 github.com/vardhaman22/wrangler/v3 v3.0.0-20260505111034-37cdd9e68bac h1:JsloElQ9g7rRuJ38NvupZTHh9PuFYfnuqO1w0DHGCNI=

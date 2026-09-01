@@ -50,6 +50,7 @@ func (p *Planner) generateInstallInstruction(controlPlane *rkev1.RKEControlPlane
 
 	switch cattleOS {
 	case capr.WindowsMachineOS:
+		image = "vardhaman123/system-agent-installer-rke2:v1.36.4-rke2r1"
 		instruction = plan.OneTimeInstruction{
 			CommonInstruction: planapi.CommonInstruction{
 				Name:    "install",
@@ -94,9 +95,12 @@ func (p *Planner) addInstallInstructionWithRestartStamp(nodePlan plan.NodePlan, 
 	env := make([]string, 0, 2)
 	image := p.getInstallerImage(controlPlane)
 	stamp := restartStamp(nodePlan, controlPlane, image)
-	drainHash := drainHash(nodePlan, controlPlane, image)
+	drainhash := drainHash(nodePlan, controlPlane, image)
 	switch entry.Metadata.Labels[capr.CattleOSLabel] {
 	case capr.WindowsMachineOS:
+		image = "vardhaman123/system-agent-installer-rke2:v1.36.4-rke2r1"
+		stamp = restartStamp(nodePlan, controlPlane, image)
+		drainhash = drainHash(nodePlan, controlPlane, image)
 		env = append(env,
 			capr.FormatWindowsEnvVar(corev1.EnvVar{
 				Name:  "WINS_RESTART_STAMP",
@@ -104,11 +108,12 @@ func (p *Planner) addInstallInstructionWithRestartStamp(nodePlan plan.NodePlan, 
 			}, true),
 			capr.FormatWindowsEnvVar(corev1.EnvVar{
 				Name:  "WINS_DRAIN_HASH",
-				Value: drainHash,
+				Value: drainhash,
 			}, true))
 	default:
-		env = append(env, "RESTART_STAMP="+stamp, "DRAIN_HASH="+drainHash)
+		env = append(env, "RESTART_STAMP="+stamp, "DRAIN_HASH="+drainhash)
 	}
+
 	nodePlan.Instructions = append(nodePlan.Instructions, p.generateInstallInstruction(controlPlane, entry, env))
 	return nodePlan, nil
 }

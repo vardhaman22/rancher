@@ -930,6 +930,32 @@ spec:
                         type: integer
                     type: object
                 type: object
+              windowsDataDirectories:
+                description: |-
+                  WindowsDataDirectories contains the configuration for the data directories
+                  typically stored within c:\var\lib\rancher. The data directories must be
+                  configured via the provisioning cluster object and are immutable once
+                  set.
+                properties:
+                  k8sDistro:
+                    description: |-
+                      K8sDistro is the data directory for the k8s distro, i.e. the data-dir
+                      arg.
+                    nullable: true
+                    type: string
+                  provisioning:
+                    description: |-
+                      Provisioning is the data directory for provisioning related files
+                      (e.g. idempotency).
+                    nullable: true
+                    type: string
+                  systemAgent:
+                    description: |-
+                      SystemAgent is the data directory for the system-agent connection info
+                      and plans.
+                    nullable: true
+                    type: string
+                type: object
             required:
             - clusterName
             - managementClusterName
@@ -1811,6 +1837,32 @@ spec:
                               before giving up for one try.
                             type: integer
                         type: object
+                    type: object
+                  windowsDataDirectories:
+                    description: |-
+                      WindowsDataDirectories contains the configuration for the data directories
+                      typically stored within c:\var\lib\rancher. The data directories must be
+                      configured via the provisioning cluster object and are immutable once
+                      set.
+                    properties:
+                      k8sDistro:
+                        description: |-
+                          K8sDistro is the data directory for the k8s distro, i.e. the data-dir
+                          arg.
+                        nullable: true
+                        type: string
+                      provisioning:
+                        description: |-
+                          Provisioning is the data directory for provisioning related files
+                          (e.g. idempotency).
+                        nullable: true
+                        type: string
+                      systemAgent:
+                        description: |-
+                          SystemAgent is the data directory for the system-agent connection info
+                          and plans.
+                        nullable: true
+                        type: string
                     type: object
                 required:
                 - clusterName

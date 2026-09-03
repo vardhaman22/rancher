@@ -65,6 +65,7 @@ func (in *ClusterConfiguration) DeepCopyInto(out *ClusterConfiguration) {
 		**out = **in
 	}
 	out.DataDirectories = in.DataDirectories
+	out.WindowsDataDirectories = in.WindowsDataDirectories
 	return
 }
 

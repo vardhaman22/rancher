@@ -72,6 +72,13 @@ type ClusterConfiguration struct {
 	// +optional
 	DataDirectories DataDirectories `json:"dataDirectories,omitempty"`
 
+	// WindowsDataDirectories contains the configuration for the data directories
+	// typically stored within c:\var\lib\rancher. The data directories must be
+	// configured via the provisioning cluster object and are immutable once
+	// set.
+	// +optional
+	WindowsDataDirectories DataDirectories `json:"windowsDataDirectories,omitempty"`
+
 	// ProvisionGeneration is used to force the planner to reconcile the
 	// cluster, regardless of whether a reconciliation is required.
 	// +optional

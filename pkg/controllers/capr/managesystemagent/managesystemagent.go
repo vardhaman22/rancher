@@ -424,6 +424,25 @@ func winsUpgradePlan(cluster *rancherv1.Cluster, env []corev1.EnvVar, secretName
 	if len(winsUpgradeImage) == 2 {
 		winsVersion = winsUpgradeImage[1]
 	}
+	if cluster.Spec.RKEConfig.WindowsDataDirectories.SystemAgent != "" {
+		envCopy := make([]corev1.EnvVar, len(env))
+		copy(envCopy, env)
+		envVarFound := false
+		for idx := range envCopy {
+			if envCopy[idx].Name == capr.SystemAgentDataDirEnvVar {
+				envVarFound = true
+				envCopy[idx].Value = capr.GetWindowsSystemAgentDataDir(&cluster.Spec.RKEConfig.ClusterConfiguration)
+				break
+			}
+		}
+		if !envVarFound {
+			envCopy = append(envCopy, corev1.EnvVar{
+				Name:  capr.SystemAgentDataDirEnvVar,
+				Value: capr.GetWindowsSystemAgentDataDir(&cluster.Spec.RKEConfig.ClusterConfiguration),
+			})
+		}
+		env = envCopy
+	}
 
 	return &upgradev1.Plan{
 		TypeMeta: metav1.TypeMeta{

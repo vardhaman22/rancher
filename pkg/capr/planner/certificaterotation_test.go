@@ -387,6 +387,7 @@ func Test_rotateCertificatesPlan(t *testing.T) {
 			expected: expected{
 				otiIndex: 0,
 				oti: &[]plan.OneTimeInstruction{windowsIdempotentRestartInstructions(
+					createTestControlPlane("v1.25.7+rke2r1"),
 					"certificate-rotation/restart",
 					strconv.FormatInt(int64(0), 10),
 					"rke2")[0]}[0],

@@ -101,6 +101,7 @@ func (p *Planner) rotateCertificatesPlan(controlPlane *rkev1.RKEControlPlane, cl
 	if isOnlyWorker(entry) {
 		if isOnlyWindowsWorker(entry) {
 			rotatePlan.Instructions = append(rotatePlan.Instructions, windowsIdempotentRestartInstructions(
+				controlPlane,
 				"certificate-rotation/restart",
 				strconv.FormatInt(rotation.Generation, 10), "rke2")...)
 		} else {

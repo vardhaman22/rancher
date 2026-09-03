@@ -331,7 +331,7 @@ func (h *handler) assignPlanSecret(machine *capi.Machine, bootstrap *rkev1.RKEBo
 	return []runtime.Object{sa, secret, role, roleBinding}, nil
 }
 
-func (h *handler) getEnvVars(controlPlane *rkev1.RKEControlPlane) ([]corev1.EnvVar, error) {
+func (h *handler) getEnvVars(controlPlane *rkev1.RKEControlPlane, machine *capi.Machine) ([]corev1.EnvVar, error) {
 	var result []corev1.EnvVar
 	for _, env := range controlPlane.Spec.AgentEnvVars {
 		// Disallow user supplied system agent var dir env var in favor of spec.systemAgent
@@ -343,7 +343,14 @@ func (h *handler) getEnvVars(controlPlane *rkev1.RKEControlPlane) ([]corev1.EnvV
 			Value: env.Value,
 		})
 	}
-	if dir := controlPlane.Spec.DataDirectories.SystemAgent; dir != "" {
+
+	var dir string
+	if machine.GetLabels()[capr.CattleOSLabel] == capr.WindowsMachineOS && controlPlane.Spec.WindowsDataDirectories.SystemAgent != "" {
+		dir = capr.GetWindowsSystemAgentDataDir(&controlPlane.Spec.ClusterConfiguration)
+	} else {
+		dir = controlPlane.Spec.DataDirectories.SystemAgent
+	}
+	if dir != "" {
 		result = append(result, corev1.EnvVar{
 			Name:  capr.SystemAgentDataDirEnvVar,
 			Value: dir,
@@ -378,12 +385,15 @@ func (h *handler) assignBootStrapSecret(machine *capi.Machine, bootstrap *rkev1.
 		return nil, nil, err
 	}
 
-	envVars, err := h.getEnvVars(controlPlane)
+	envVars, err := h.getEnvVars(controlPlane, machine)
 	if err != nil {
 		return nil, nil, err
 	}
 
 	dataDir := capr.GetDistroDataDir(controlPlane)
+	if machine.GetLabels()[capr.CattleOSLabel] == capr.WindowsMachineOS {
+		dataDir = capr.GetWindowsDistroDataDir(controlPlane)
+	}
 
 	secretName := name.SafeConcatName(bootstrap.Name, "machine", "bootstrap")
 

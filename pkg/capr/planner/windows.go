@@ -3,9 +3,12 @@ package planner
 import (
 	"encoding/base64"
 	"fmt"
+	"path/filepath"
 	"strings"
 
+	rkev1 "github.com/rancher/rancher/pkg/apis/rke.cattle.io/v1"
 	"github.com/rancher/rancher/pkg/apis/rke.cattle.io/v1/plan"
+	"github.com/rancher/rancher/pkg/capr"
 	planapi "github.com/rancher/rancher/pkg/plan"
 )
 
@@ -195,40 +198,44 @@ foreach ($path in $restrictedPaths) {
 `
 )
 
-var (
-	setPermissionsWindowsScriptFile = plan.File{
+// setPermissionsWindowsScriptFile renders the permissions script for the given control plane's configured Windows data directories.
+func setPermissionsWindowsScriptFile(controlPlane *rkev1.RKEControlPlane) plan.File {
+	provisioningDir := capr.GetWindowsProvisioningDataDir(&controlPlane.Spec.ClusterConfiguration)
+	return plan.File{
 		Content: base64.StdEncoding.EncodeToString([]byte(
 			fmt.Sprintf(setPermissionsWindowsScript,
-				"c:\\var\\lib\\rancher\\rke2",
-				"c:\\var\\lib\\rancher\\agent",
-				"c:\\var\\lib\\rancher\\capr"))),
-
-		Path: fmt.Sprintf(setPermissionsWindowsScriptPath,
-			"c:\\var\\lib\\rancher\\capr"),
+				capr.GetWindowsDistroDataDir(controlPlane),
+				capr.GetWindowsSystemAgentDataDir(&controlPlane.Spec.ClusterConfiguration),
+				provisioningDir))),
+		Path:    fmt.Sprintf(setPermissionsWindowsScriptPath, provisioningDir),
 		Dynamic: true,
 		Minor:   true,
 	}
-	setPermissionsWindowsScriptInstruction = plan.OneTimeInstruction{
+}
+
+// setPermissionsWindowsScriptInstruction generates the instruction to run the permissions script for the given control plane.
+func setPermissionsWindowsScriptInstruction(controlPlane *rkev1.RKEControlPlane) plan.OneTimeInstruction {
+	return plan.OneTimeInstruction{
 		CommonInstruction: planapi.CommonInstruction{
 			Name:    "Set permissions for RKE2 installation files on Windows",
 			Command: "powershell.exe",
 			Args: []string{"-File", fmt.Sprintf(setPermissionsWindowsScriptPath,
-				"c:\\var\\lib\\rancher\\capr")},
+				capr.GetWindowsProvisioningDataDir(&controlPlane.Spec.ClusterConfiguration))},
 		},
 	}
-)
+}
 
-func windowsIdempotentActionScriptPath() string {
-	// note: custom data directory paths are not currently respected by Windows nodes
-	return "c:\\var\\lib\\rancher\\capr\\idempotence\\idempotent.ps1"
+func windowsIdempotentActionScriptPath(controlPlane *rkev1.RKEControlPlane) string {
+	return filepath.Join(capr.GetWindowsProvisioningDataDir(&controlPlane.Spec.ClusterConfiguration), "idempotence", "idempotent.ps1")
 }
 
 // windowsIdempotentRestartInstructions generates an idempotent restart instruction for the given Windows service.
 // identifier is expected to be a unique key for tracking, and value should be something like the generation of the attempt
 // (and is what we track to determine whether we should run the instruction or not).
-func windowsIdempotentRestartInstructions(identifier, value, service string) []plan.OneTimeInstruction {
+func windowsIdempotentRestartInstructions(controlPlane *rkev1.RKEControlPlane, identifier, value, service string) []plan.OneTimeInstruction {
 	return []plan.OneTimeInstruction{
 		windowsIdempotentInstruction(
+			controlPlane,
 			identifier+"-restart",
 			value,
 			"restart-service",
@@ -247,7 +254,7 @@ func windowsIdempotentRestartInstructions(identifier, value, service string) []p
 // (such as powershell.exe) may result in error suppression. Due to how PowerShell handles arguments when executing commands via InvokeExpression,
 // care must be taken to ensure that certain escape characters (such as ') do not interfere with how arguments are built and passed to InvokeExpression.
 // Reference windowsIdempotentActionScript for more information as to how command arguments are crafted and passed to InvokeExpression.
-func windowsIdempotentInstruction(identifier, value, command string, args []string, env []string) plan.OneTimeInstruction {
+func windowsIdempotentInstruction(controlPlane *rkev1.RKEControlPlane, identifier, value, command string, args []string, env []string) plan.OneTimeInstruction {
 	hashedCommand := planapi.PlanHash([]byte(command))
 	hashedValue := planapi.PlanHash([]byte(value))
 
@@ -256,13 +263,12 @@ func windowsIdempotentInstruction(identifier, value, command string, args []stri
 			Name:    fmt.Sprintf("idempotent-%s-%s-%s", identifier, hashedValue, hashedCommand),
 			Command: "powershell.exe",
 			Args: append([]string{
-				windowsIdempotentActionScriptPath(),
+				windowsIdempotentActionScriptPath(controlPlane),
 				strings.ToLower(identifier),
 				hashedValue,
 				hashedCommand,
 				command,
-				// note: custom data directory paths are not currently respected by Windows nodes
-				"c:\\var\\lib\\rancher\\capr",
+				capr.GetWindowsProvisioningDataDir(&controlPlane.Spec.ClusterConfiguration),
 			},
 				args...),
 			Env: env,

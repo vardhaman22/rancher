@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"path"
+	"path/filepath"
 	"regexp"
 	"sort"
 	"strings"
@@ -377,6 +378,47 @@ func GetSystemAgentDataDir(spec *rkev1.ClusterConfiguration) string {
 		return spec.DataDirectories.SystemAgent
 	}
 	return "/var/lib/rancher/agent"
+}
+
+// windowsDriveLetterRegex matches a leading Windows drive letter, e.g. "c:" or "D:"
+var windowsDriveLetterRegex = regexp.MustCompile(`^[a-zA-Z]:`)
+
+// ensureWindowsDrive prefixes path with the default "c:" drive if it does not already specify a drive letter.
+func ensureWindowsDrive(path string) string {
+	// If it already has a local drive letter prefix, return it as-is
+	if windowsDriveLetterRegex.MatchString(path) {
+		return path
+	}
+	return filepath.Join("c:\\", path)
+}
+
+// GetWindowsDistroDataDir returns the data-dir to use for the k8s distro on Windows nodes. It falls back to
+// DataDirectories.K8sDistro (for backwards compatibility) and then to the Windows default if neither is set.
+func GetWindowsDistroDataDir(controlPlane *rkev1.RKEControlPlane) string {
+	if controlPlane.Spec.WindowsDataDirectories.K8sDistro != "" {
+		return ensureWindowsDrive(controlPlane.Spec.WindowsDataDirectories.K8sDistro)
+	}
+	return fmt.Sprintf("c:\\var\\lib\\rancher\\%s", GetRuntime(controlPlane.Spec.KubernetesVersion))
+}
+
+// GetWindowsProvisioningDataDir returns the data directory used for provisioning related files (e.g. idempotency)
+// on Windows nodes. It falls back to DataDirectories.Provisioning (for backwards compatibility) and then to the
+// Windows default if neither is set.
+func GetWindowsProvisioningDataDir(spec *rkev1.ClusterConfiguration) string {
+	if spec.WindowsDataDirectories.Provisioning != "" {
+		return ensureWindowsDrive(spec.WindowsDataDirectories.Provisioning)
+	}
+	return "c:\\var\\lib\\rancher\\capr"
+}
+
+// GetWindowsSystemAgentDataDir returns the data directory used for the system-agent connection info and plans on
+// Windows nodes. It falls back to DataDirectories.SystemAgent (for backwards compatibility) and then to the
+// Windows default if neither is set.
+func GetWindowsSystemAgentDataDir(spec *rkev1.ClusterConfiguration) string {
+	if spec.WindowsDataDirectories.SystemAgent != "" {
+		return ensureWindowsDrive(spec.WindowsDataDirectories.SystemAgent)
+	}
+	return "c:\\var\\lib\\rancher\\agent"
 }
 
 func IsOwnedByMachine(bootstrapCache rkecontroller.RKEBootstrapCache, machineName string, sa *corev1.ServiceAccount) (bool, error) {

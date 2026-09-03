@@ -1085,7 +1085,7 @@ func (p *Planner) generatePlanWithConfigFiles(controlPlane *rkev1.RKEControlPlan
 		if isOnlyWindowsWorker(entry) {
 			idempotentScriptFile = plan.File{
 				Content: base64.StdEncoding.EncodeToString([]byte(windowsIdempotentActionScript)),
-				Path:    windowsIdempotentActionScriptPath(),
+				Path:    windowsIdempotentActionScriptPath(controlPlane),
 				Dynamic: true,
 				Minor:   true,
 			}
@@ -1138,8 +1138,8 @@ func (p *Planner) desiredPlan(controlPlane *rkev1.RKEControlPlane, cluster *capi
 		// We need to wait for the controlPlane to be ready before sending this plan
 		// to ensure that the initial installation has fully completed
 		if ptr.Deref(controlPlane.Status.Initialization.ControlPlaneInitialized, false) {
-			nodePlan.Files = append(nodePlan.Files, setPermissionsWindowsScriptFile)
-			nodePlan.Instructions = append(nodePlan.Instructions, setPermissionsWindowsScriptInstruction)
+			nodePlan.Files = append(nodePlan.Files, setPermissionsWindowsScriptFile(controlPlane))
+			nodePlan.Instructions = append(nodePlan.Instructions, setPermissionsWindowsScriptInstruction(controlPlane))
 		}
 	}
 

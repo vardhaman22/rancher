@@ -38,8 +38,15 @@ func (p *Planner) generateInstallInstruction(controlPlane *rkev1.RKEControlPlane
 	}
 	switch cattleOS {
 	case capr.WindowsMachineOS:
-		// TODO: Properly format the data dir when adding full support for Windows nodes
-		env = append(env, fmt.Sprintf("$env:%s_DATA_DIR=\"c:%s\"", strings.ToUpper(capr.GetRuntime(controlPlane.Spec.KubernetesVersion)), capr.GetDistroDataDir(controlPlane)))
+		if controlPlane.Spec.WindowsDataDirectories.K8sDistro != "" {
+			env = append(env, capr.FormatWindowsEnvVar(corev1.EnvVar{
+				Name:  fmt.Sprintf("%s_DATA_DIR", strings.ToUpper(capr.GetRuntime(controlPlane.Spec.KubernetesVersion))),
+				Value: capr.GetWindowsDistroDataDir(controlPlane),
+			}, true))
+		} else {
+			// irrelevant but needed to keep the plans of existing clusters same as before
+			env = append(env, fmt.Sprintf("$env:%s_DATA_DIR=\"c:%s\"", strings.ToUpper(capr.GetRuntime(controlPlane.Spec.KubernetesVersion)), capr.GetDistroDataDir(controlPlane)))
+		}
 		env = append(env, capr.FormatWindowsEnvVar(corev1.EnvVar{
 			Name:  "INSTALL_RKE2_VERSION",
 			Value: controlPlane.Spec.KubernetesVersion,

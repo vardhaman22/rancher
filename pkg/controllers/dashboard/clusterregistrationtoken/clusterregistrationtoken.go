@@ -10,6 +10,7 @@ import (
 	v3 "github.com/rancher/rancher/pkg/apis/management.cattle.io/v3"
 	"github.com/rancher/rancher/pkg/features"
 	v32 "github.com/rancher/rancher/pkg/generated/controllers/management.cattle.io/v3"
+	v1 "github.com/rancher/rancher/pkg/generated/controllers/provisioning.cattle.io/v1"
 	"github.com/rancher/rancher/pkg/settings"
 	"github.com/rancher/rancher/pkg/wrangler"
 	corecontrollers "github.com/rancher/wrangler/v3/pkg/generated/controllers/core/v1"
@@ -37,6 +38,7 @@ type handler struct {
 	clusterRegistrationTokenCache      v32.ClusterRegistrationTokenCache
 	clusterRegistrationTokenController v32.ClusterRegistrationTokenController
 	clustersCache                      v32.ClusterCache
+	provClustersCache                  v1.ClusterCache
 	secrets                            corecontrollers.SecretClient
 	secretCache                        corecontrollers.SecretCache
 	roles                              rbaccontrollers.RoleClient
@@ -49,6 +51,7 @@ func Register(ctx context.Context, clients *wrangler.Context) {
 		clusterRegistrationTokenController: clients.Mgmt.ClusterRegistrationToken(),
 		clusterRegistrationTokenCache:      clients.Mgmt.ClusterRegistrationToken().Cache(),
 		clustersCache:                      clients.Mgmt.Cluster().Cache(),
+		provClustersCache:                  clients.Provisioning.Cluster().Cache(),
 		secrets:                            clients.Core.Secret(),
 		secretCache:                        clients.Core.Secret().Cache(),
 		roles:                              clients.RBAC.Role(),

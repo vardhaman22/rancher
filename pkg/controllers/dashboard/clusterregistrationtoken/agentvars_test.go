@@ -68,7 +68,7 @@ func TestAgentEnvVars(t *testing.T) {
 			a := assert.New(t)
 
 			// act
-			evars := AgentEnvVars(tt.cluster, tt.envType)
+			evars := AgentEnvVars(tt.cluster, tt.envType, "")
 
 			// assert
 			a.Equal(tt.expected, evars)

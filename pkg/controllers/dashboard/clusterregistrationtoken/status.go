@@ -37,12 +37,17 @@ func (h *handler) assignStatus(crt *v32.ClusterRegistrationToken) (v32.ClusterRe
 		return *crtStatus, err
 	}
 
-	return AssignCommands(crtStatus, cluster)
+	provCluster, err := h.provClustersCache.Get(cluster.Status.Info.ProvisioningClusterRef.Namespace, cluster.Status.Info.ProvisioningClusterRef.Name)
+	if err != nil {
+		return *crtStatus, err
+	}
+
+	return AssignCommands(crtStatus, cluster, provCluster.Spec.RKEConfig.WindowsDataDirectories.SystemAgent)
 }
 
 // AssignCommands populates the command fields in a CRT status using the "{token}" placeholder.
 // Substitution of the placeholder with the real token happens at the API layer.
-func AssignCommands(crtStatus *v32.ClusterRegistrationTokenStatus, cluster *v32.Cluster) (v32.ClusterRegistrationTokenStatus, error) {
+func AssignCommands(crtStatus *v32.ClusterRegistrationTokenStatus, cluster *v32.Cluster, winsSystemAgentDir string) (v32.ClusterRegistrationTokenStatus, error) {
 	checksum := systemtemplate.CAChecksum()
 	ca := ""
 	caWindows := ""
@@ -71,29 +76,29 @@ func AssignCommands(crtStatus *v32.ClusterRegistrationTokenStatus, cluster *v32.
 
 	// for linux
 	crtStatus.NodeCommand = fmt.Sprintf(provisioningV2NodeCommandFormat,
-		AgentEnvVars(cluster, Linux),
+		AgentEnvVars(cluster, Linux, ""),
 		rootURL+installer.SystemAgentInstallPath,
-		AgentEnvVars(cluster, Linux),
+		AgentEnvVars(cluster, Linux, ""),
 		rootURL,
 		tokenPlaceholder,
 		ca)
 	crtStatus.InsecureNodeCommand = fmt.Sprintf(provisioningV2InsecureNodeCommandFormat,
-		AgentEnvVars(cluster, Linux),
+		AgentEnvVars(cluster, Linux, ""),
 		rootURL+installer.SystemAgentInstallPath,
-		AgentEnvVars(cluster, Linux),
+		AgentEnvVars(cluster, Linux, ""),
 		rootURL,
 		tokenPlaceholder,
 		ca)
 
 	// for windows
 	crtStatus.WindowsNodeCommand = fmt.Sprintf(provisioningV2WindowsNodeCommandFormat,
-		AgentEnvVars(cluster, PowerShell),
+		AgentEnvVars(cluster, PowerShell, ""),
 		rootURL+installer.WindowsRke2InstallPath,
 		rootURL,
 		tokenPlaceholder,
 		caWindows)
 	crtStatus.InsecureWindowsNodeCommand = fmt.Sprintf(provisioningV2InsecureWindowsNodeCommandFormat,
-		AgentEnvVars(cluster, PowerShell),
+		AgentEnvVars(cluster, PowerShell, ""),
 		rootURL+installer.WindowsRke2InstallPath,
 		rootURL,
 		tokenPlaceholder,

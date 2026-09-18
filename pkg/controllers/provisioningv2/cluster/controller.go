@@ -617,6 +617,12 @@ func (h *handler) createNewCluster(cluster *v1.Cluster, status v1.ClusterStatus,
 				Value: cluster.Spec.RKEConfig.DataDirectories.SystemAgent,
 			})
 		}
+		// if cluster.Spec.RKEConfig.WindowsDataDirectories.SystemAgent != "" {
+		// 	spec.AgentEnvVars = append(spec.AgentEnvVars, corev1.EnvVar{
+		// 		Name:  capr.WinsAgentDataDirEnvVar,
+		// 		Value: cluster.Spec.RKEConfig.WindowsDataDirectories.SystemAgent,
+		// 	})
+		// }
 		if err := h.updateFeatureLockedValue(true); err != nil {
 			return nil, status, err
 		}

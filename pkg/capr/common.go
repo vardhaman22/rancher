@@ -217,6 +217,7 @@ const (
 	MaximumHostnameLengthLimit = 63
 
 	SystemAgentDataDirEnvVar = "CATTLE_AGENT_VAR_DIR"
+	// WinsAgentDataDirEnvVar   = "CATTLE_AGENT_WINS_VAR_DIR"
 )
 
 var (

@@ -609,7 +609,7 @@ func (e *eksOperatorController) getAccessToken(cluster *mgmtv3.Cluster) (string,
 		return "", err
 	}
 
-	awsToken, err := generator.GetWithOptions(&token.GetTokenOptions{
+	awsToken, err := generator.GetWithOptions(context.TODO(), &token.GetTokenOptions{
 		Session:   sess,
 		ClusterID: cluster.Spec.EKSConfig.DisplayName,
 	})
